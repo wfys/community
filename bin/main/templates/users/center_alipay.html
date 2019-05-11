@@ -1,0 +1,74 @@
+<div class="row" id="alipayPage">
+  <h4>&nbsp;&nbsp;&nbsp;你（<span th:text="${user.username}"></span>）的金币余额为：<span th:text="${user.gold}"></span></h4>
+  <span id="moneyUrl" data-th-attr="url='/personal/' + ${#authentication.Principal.username}+'/alipay'"></span>
+  <div class="col-sm-6 col-md-3">
+    <div class="thumbnail selcted_alipay">
+      <div class="caption">
+        <h2 class="text-center">1元</h2>
+        <p class="text-center">10金币</p>
+        <p class="text-center"><a href="javascript:void(0)" data-th-attr="total_amount=1" 
+        class="btn btn-danger normalFont money" role="button">充值</a></p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-sm-6 col-md-3">
+    <div class="thumbnail selcted_alipay">
+      <div class="caption">
+        <h2 class="text-center">5元</h2>
+        <p class="text-center">50金币</p>
+        <p class="text-center"><a href="javascript:void(0)" data-th-attr="total_amount=5"
+        class="btn btn-danger normalFont money" role="button">充值</a></p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-sm-6 col-md-3">
+    <div class="thumbnail selcted_alipay">
+      <div class="caption">
+        <h2 class="text-center">10元</h2>
+        <p class="text-center">100金币</p>
+        <p class="text-center"><a href="javascript:void(0)" data-th-attr="total_amount=10" 
+        class="btn btn-danger normalFont money" role="button">充值</a></p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-sm-6 col-md-3">
+    <div class="thumbnail selcted_alipay">
+      <div class="caption">
+        <h2 class="text-center">50元</h2>
+        <p class="text-center">500金币</p>
+        <p class="text-center"><a href="javascript:void(0)" data-th-attr="total_amount=50" 
+        class="btn btn-danger normalFont money" role="button">充值</a></p>
+      </div>
+    </div>
+  </div>
+		
+</div>
+<script>
+//充值提交
+$(".money").click(function() {
+	var url=$("#moneyUrl").attr("url");
+	var total_amount=$(this).attr("total_amount");
+	// 获取 CSRF Token 
+	var csrfToken = $("meta[name='_csrf']").attr("content");
+	var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+	$.ajax({ 
+		 url: url, 
+		 type: 'POST',
+		 beforeSend: function(request) {
+             request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+         },
+		 data:{
+			 total_amount:total_amount
+		 },
+		 success: function(data){
+			 $("body").html(data);
+	     },
+	     error : function() {
+	    	 alert("error");
+	     }
+	 });
+});
+</script>

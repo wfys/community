@@ -1,0 +1,17 @@
+<div class="row">
+
+	<div class="col-md-2 col-xs-2 col-md-offset-1">
+	     <img th:src="${user.getAvater()} == null ? '/favicon.ico' : ${user.getAvater()}" 
+	     width="100%" height="100%" class="img-circle">
+    </div>
+       
+	<div  class="col-md-8 col-xs-8 normalFont" th:object="${user}">
+	     <p>I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D：<span th:text="*{id}"></span></p>
+	     <p>账&nbsp;号：<span th:text="*{username}"></span></p>
+	     <p>昵&nbsp;称：<span th:text="*{name}"></span></p>
+	     <p>邮&nbsp;箱：<span th:text="*{email}"></span></p>
+	     <p>角&nbsp;色：<span th:text="*{authorities}"></span></p>
+	     <p>金&nbsp;币：<span th:text="*{gold}"></span></p>
+	</div>
+		
+</div>

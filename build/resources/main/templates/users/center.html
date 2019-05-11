@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head th:replace="~{fragments/header :: headInfo}">
+
+</head>
+
+<body>
+	<div th:replace="~{fragments/header :: header}"></div>
+	<style>
+    .content-profile {
+	margin-top: 2.0em;
+	background-color: #fff;
+	padding: 20px;
+    }
+    .persinalHeader{
+    border-bottom:1px solid gray;
+    margin-bottom: 1.5em;
+    }
+    .list-selected{
+    border-left:5px solid #009688;
+    background-color:#d2d2d2;
+    }
+    .blog-edit-avatar{
+    margin-top:20px;
+    margin-left:10px;
+    }
+    .selcted_alipay:hover{
+    border:2px solid red;
+    cursor: pointer
+    }
+    </style>
+	<!-- Page Content -->
+	<div class="container content-profile">
+
+		<div class="row">
+			<div class="persinalHeader">
+			    <h5 th:if="${isAdmin}"><span >管理员你好，你可以进入<a th:href="@{/admins}">后台管理</a></span></h5>
+				<h2>个人中心</h2>
+			</div>
+			<!-- 左侧栏目 -->
+			<div class="col-md-2 col-xl-2 normalFont">
+				<!-- 菜单 -->
+				<div class="list-group">
+                    <a href="javascript:void(0)" data-th-attr="url='/personal/' + ${#authentication.Principal.username}+'/info'" class="list-group-item list-selected">基本信息</a>
+                    <a href="javascript:void(0)" data-th-attr="url='/personal/' + ${#authentication.Principal.username}+'/phto'" class="list-group-item">头像修改</a>
+                    <a href="javascript:void(0)" data-th-attr="url='/personal/' + ${#authentication.Principal.username}+'/edit'" class="list-group-item">信息修改</a>
+                    <a href="javascript:void(0)" data-th-attr="url='/personal/' + ${#authentication.Principal.username}+'/alipay'" class="list-group-item">充值金币</a>
+                    <a href="javascript:void(0)" data-th-attr="url='/personal/' + ${#authentication.Principal.username}+'/recharge'" class="list-group-item">充值记录</a>
+                    <a href="javascript:void(0)" data-th-attr="url='/personal/' + ${#authentication.Principal.username}+'/spend'" class="list-group-item">消费记录</a>
+                    <a href="javascript:void(0)" data-th-attr="url='/personal/' + ${#authentication.Principal.username}+'/income'" class="list-group-item">收入记录</a> 
+                </div>
+			</div>
+
+			<!-- 右侧栏目 -->
+			<div class="col-md-10 col-xl-10">
+				<div id="rightContainer"></div>
+			</div>
+			<!-- /.row -->
+
+		</div>
+	</div>
+	<!-- /.container -->
+
+
+	<div th:replace="~{fragments/footer :: footer}">...</div>
+
+
+	<!-- JavaScript -->
+	<script src="../../js/users/personal.js"
+		th:src="@{/js/users/personal.js}"></script>
+
+</body>
+</html>

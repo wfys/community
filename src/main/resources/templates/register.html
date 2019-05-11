@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4" >
+<head th:replace="~{fragments/header :: headInfo}">
+
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<style>
+.loginSet{
+     margin-top:1.0em;
+     margin-bottom:2.3em;
+}
+.form-signin-heading{
+     text-align:center;
+     padding-bottom:10px;
+     border-bottom: 2px solid green;
+}
+.errorLogin{
+     color:red;
+     text-align:center;
+     font-size:10px;
+}
+</style>
+<div class="container content-container">
+      <div class="row">
+      <div class="col-md-4 col-md-offset-4 col-xs-8 col-xs-offset-2 loginSet">
+		<form th:action="@{/register}"  method="post" onsubmit="return check()">
+			<h2 class="form-signin-heading">注册</h2>
+			
+			<div class="form-group">
+				<label for="username" class="col-form-label">账号</label>
+				<div class="input-group">
+				    <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+				    <input type="text" class="form-control" id="username" name="username" maxlength="50" placeholder="请输入账号，可以是手机号或其它，3~20个字符">
+	            </div>
+			</div>
+			<div class="form-group">
+				<label for="email" class="col-form-label">邮箱</label>
+				<div class="input-group">
+				    <span class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span></span>
+				    <input type="email" class="form-control" id="email" name="email" maxlength="50" placeholder="请输入邮箱">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="name" class="col-form-label">昵称</label>
+				<div class="input-group">
+				    <span class="input-group-addon"><span class="glyphicon glyphicon-globe"></span></span>
+				    <input type="text" class="form-control" id="name" name="name" maxlength="20" placeholder="请输入昵称，至少2个字符，至多20个" >
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="password" class="col-form-label">密码</label>
+				<div class="input-group">
+				    <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+				    <input type="password" class="form-control" id="password" name="password" maxlength="30" placeholder="请输入密码，字母或特殊符号和数字结合" >
+				</div>
+			</div>
+			<p th:text=${errorMsg} class="errorLogin"></p>
+			<div class="form-group">
+				<button type="submit" class="btn btn-success btn-lg btn-block">注册</button>
+			</div> 
+		</form>
+		</div>
+    </div>
+</div> <!-- /container -->
+<div th:replace="~{fragments/footer :: footer}">...</div>
+<script>
+function check(){
+	var regEmail=/^[0-9A-z]{4,}@[A-z]+\.(com|cn|org)$/;
+	var username=$("#username").val();
+	var email=$("#email").val();
+	var name=$("#name").val();
+	var password=$("#password").val();
+	if(username==null||username.length<3||username.length>20){
+		$(".errorLogin").html("账号在2~20，可以是手机号");
+		return false;
+	}
+	if(!regEmail.test(email)){
+		$(".errorLogin").html("邮箱需要含有@字符，且时正确的邮箱号码");
+		return false;
+	}
+	if(name==null||name.length<2||name.length>20){
+		$(".errorLogin").html("昵称长度在2~2");
+		return false;
+	}
+	if(password==null||password.length<6){
+		$(".errorLogin").html("密码不能小于6位");
+		return false;
+	}
+	return true;
+ 
+}
+</script>
+</body>
+</html>

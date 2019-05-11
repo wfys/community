@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head th:replace="~{fragments/header :: headInfo}">
+
+</head>
+<body>
+	<div th:replace="~{fragments/header :: header}"></div>
+	<style>
+.card-text span {
+	margin-right: 10px;
+	margin-left: 10px;
+}
+.card-text{
+    background-color:#f2f2f2;
+}
+.media {
+	padding-left: 10px;
+	border: 1px solid #c2c2c2;
+}
+.media-left{
+    padding-top:10px;
+    padding-bottom:10px;
+}
+.post-content{
+    min-height:110px;
+}
+.media-body{
+    margin-top:0px;
+    border-left: 1px solid #c2c2c2;
+    padding:10px;
+    overflow:hidden;
+}
+.media-body img{
+    max-width:100%;
+}
+.card-link img {
+	width: 40px;
+	height: 40px;
+	border: 1px solid black;
+}
+
+.card-link {
+	color: black;
+}
+.card-link:hover {
+	color: red;
+	text-decoration: none;
+}
+.title{
+    font-size:24px;
+    padding-right:20px; 
+    padding-left:20px; 
+}
+.notitle{
+    font-size:18px;  
+}
+.title-link img {
+	width: 80px;
+	height: 80px;
+	border: 1px solid black;
+}
+.accept_result{
+    background-color:#009688;
+    padding:5px;
+    font-size: 16px;
+    color:#393D49;
+    cursor:pointer;
+}
+.accept{
+    background-color:#FF5722;
+    padding:5px;
+    font-size: 16px;
+    color:#01AAED;
+    cursor:pointer;
+}
+
+.text-right {
+	margin-right: 15px;
+	
+}
+#followContent {
+	background-color: #efefef;
+	margin-bottom: 20px;
+	resize: none;
+	font-size: 18px;
+	color: #000000;
+}
+
+.submitVote{
+	cursor: pointer;
+	font-size: 18px;
+	color:red;
+}
+
+#submitFollow{
+    margin-bottom:20px;
+}
+.tags-link{
+    color:#6b5353;
+    font-size:16px;
+}
+.tags-link:hover {
+	color: #FFB800;
+	text-decoration: none;
+}
+</style>
+	<!-- Page Content -->
+	<div class="container content-container">
+		<div class="row">
+		    <span style="display:none" id="principal" data-th-attr="principal=${principal}" ></span>
+			<div class="col-md-8">
+			    <div class="card-title">
+					<a class="card-link title" th:href="'/post/detail/' + ${post.id}" th:title="${user.username}" th:text="${post.title}"></a>
+					 <span class="notitle">（悬赏金币：[[${post.spendGold}]] ）</span>
+					 <span class="notitle" th:if="${post.isSolve}">解决</span>
+				     <span class="notitle" th:if="${post.isSolve} != true">未解决</span>
+				</div>
+			    <div class="media">
+                     <div class="media-left">
+                         <a th:href="'/u/' + ${user.username}" class="title-link">
+                             <img class="media-object img-circle" 
+                             th:src="${user.getAvater()} == null ? '/favicon.ico' : ${user.getAvater()}">
+                         </a>
+                         <h4 class="text-center">
+                             <a th:href="'/u/' + ${user.username}" class="card-link" th:text="${user.name}"></a>
+                         </h4>        
+                     </div>
+                     <div class="media-body">
+                         <article class="post-content normalFont" th:utext="${post.htmlContent}"></article>
+                         <div class="card-text">
+                                                                                       发表于[[${#dates.format(post.createTime, 'yyyy-MM-dd HH:mm:ss')}]] 
+					         <span><i class="glyphicon glyphicon-eye-open" aria-hidden="true">[[${post.readSize}]]</i></span>
+					         <span><i class="glyphicon glyphicon-comment" aria-hidden="true">[[${post.followSize}]]</i></span>
+					         <span>
+						                            标签： <a th:each="tag : ${#strings.arraySplit(post.tags , ',')}"
+							      th:href="'/post?keyword='+ ${tag}" class="tags-link" th:text="${tag}"></a>
+					          </span>
+                         </div>
+                         
+                     </div>
+                </div>
+				<div class="card-block">
+					<h4>跟帖：</h4>
+					<div class="row">
+						<div class="col-lg-12">
+							<textarea class="form-control" placeholder="看帖需回答~"
+								id="followContent" maxlength="500" rows="4"></textarea>
+						</div>
+						<div class="text-right">
+							<button class="btn btn-danger" id="submitFollow"
+								th:attr="postId=${post.id}">发表帖子</button>
+						</div>
+					</div>
+				</div>
+				<div class="card-block" id="mainContainer">
+					<div id="mainContainerRepleace">
+					  <div th:each="follow,followStat : ${model.follows}" th:object="${follow}">
+						<div class="media">
+							<div class="media-left">
+								<a th:href="'/u/'+ *{user.username}" class="title-link"> <img
+									class="media-object img-circle"
+									th:src="*{user.getAvater()} == null ? '/favicon.ico' : *{user.getAvater()}">
+								</a>
+								<h4 class="text-center">
+                                     <a th:href="'/u/' + *{user.username}" class="card-link" th:text="*{user.name}"></a>
+                                </h4>
+                                <div class="text-center">
+                                     <span th:if="${post.isSolve}">
+                                          <span th:if="${follow.isAccept}" class="accept_result">
+                                                                                                                                       已采纳
+                                          </span>
+                                          <span th:if="${follow.isAccept} != true" class="accept">
+                                                                                                                                       未采纳                                                                                          
+                                          </span>
+                                     </span>
+						             <span th:if="${post.isSolve} != true" class="accept" th:onclick="'accptFollow('+*{id}+')'">采纳</span>
+                                </div>   
+							</div>
+							<div class="media-body">
+							   <article class="post-content" th:utext="${follow.htmlContent}"></article>
+							   <div class="row card-text">
+								    <div class="col-md-10">
+								    <div>
+						               <span><i class="glyphicon glyphicon-time"
+										aria-hidden="true"></i>[[${#dates.format(follow.createTime,'yyyy-MM-dd HH:mm:ss')}]]</span>
+										<span th:onclick="'submitVote('+*{id}+')'" class="submitVote"><i
+								               class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></i></span>
+										<span>[[${follow.likeSize}]]</span>
+										<span>[[${followStat.index} + 1]]楼</span>
+					                </div>
+									</div>
+									<div class="col-md-2">
+									  <button  th:onclick="'deleteFollow('+*{id}+')'" th:if="${followOwner} eq *{user.username} or ${followOwner} eq ${blogOWner}"
+										th:attr="followid=*{id}" class="btn btn-danger btn-xs" > <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+									  </button>
+									</div>	
+								</div>
+							</div>
+						</div>
+					</div>
+					</div>
+				</div>
+			</div>
+			<!-- 右侧栏目 -->
+			<div class="col-md-4">
+				<div id="mainHotContainer">
+				</div>
+			</div>
+		</div>
+		<!-- /.row -->
+	</div>
+	<div th:replace="~{fragments/footer :: footer}">...</div>
+	<!-- JavaScript -->
+	<script>
+		//DOM 加载完再执行
+		$(function() {
+			//$.catalog("#catalog", ".post-content");
+			var postId = $("#submitFollow").attr("postId");
+			var principal=$("#principal").attr("principal");
+			// 获取跟帖列表
+			function getFollow(postId) {
+				// 获取 CSRF Token 
+				var csrfToken = $("meta[name='_csrf']").attr("content");
+				var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+				$.ajax({
+					url : '/follow',
+					type : 'GET',
+					data : {
+						"postId" : postId
+					},
+					beforeSend : function(request) {
+						request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+					},
+					success : function(data) {
+						$("#mainContainer").html(data);
+					},
+					error : function() {
+						alert("error!");
+					}
+				});
+			}
+
+			// 提交跟帖
+			$("#submitFollow").click(function() {
+					// 获取 CSRF Token 
+					var csrfToken = $("meta[name='_csrf']").attr("content");
+					var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+					if($("#followContent").val().length<=0){
+						alert("请输入跟帖内容");
+						return;
+					}
+					if(principal==null){
+						alert("请先登录再跟帖");
+						return;
+					}
+					$.ajax({
+							 url : '/follow',
+							 type: 'POST',
+							 data : {
+								 "postId" : postId,
+								 "followContent" : $('#followContent').val()
+								},
+							 beforeSend: function(request) {
+					             request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token
+					         },
+							success : function(data) {
+							    if (data.success) {
+									// 清空评论框
+									$('#followContent').val('');
+									// 获取评论列表
+									getFollow(postId);
+							    } else {
+									alert(data.message);
+							    }
+							},
+							error : function() {
+								alert("error!");
+							}
+						});
+			});
+			
+			//删除跟帖
+			deleteFollow= function(followid) {
+					// 获取 CSRF Token 
+					var csrfToken = $("meta[name='_csrf']").attr("content");
+					var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+					if (confirm("确认删除？") == false) return;
+					$.ajax({
+							url : '/follow/'+ followid+ '?postId=' + postId,
+							type : 'DELETE',
+							beforeSend : function(request) {
+							request.setRequestHeader(csrfHeader,
+										csrfToken); // 添加  CSRF Token 
+							},
+							success : function(data) {
+							  if (data.success) {
+							    // 获取评论列表
+							    getFollow(postId);
+							  } else {
+								alert(data.message);
+							  }
+							},
+							error : function() {
+								alert("error!");
+							}
+						});
+			}
+
+			// 初始化 帖子评论
+			getFollow(postId);
+			
+			//采纳
+			accptFollow=function(followId) {
+				// 获取 CSRF Token 
+				var csrfToken = $("meta[name='_csrf']").attr("content");
+				var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				if(principal==null){
+					alert("请先登录采纳");
+					return;
+				}
+                $.ajax({
+						url : '/follow/accept',
+				        type : 'POST',
+						data : {
+								"followId" : followId,
+								"postId" : postId
+						},
+						beforeSend : function(request) {
+								request.setRequestHeader(csrfHeader,csrfToken); // 添加  CSRF Token 
+						},
+						success : function(data) {
+							if (data.success) {
+									alert(data.message);
+									// 成功后，刷新
+									getFollow(postId);
+							} else {
+									alert(data.message);
+							}
+						},
+						error : function() {
+							alert("error!");
+						}
+					});
+			}
+			// 提交点赞
+			submitVote = function(followId) {
+				// 获取 CSRF Token 
+				var csrfToken = $("meta[name='_csrf']").attr("content");
+				var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				if(principal==null){
+					alert("请先登录再点赞");
+					return;
+				}
+                $.ajax({
+						url : '/votes/follow',
+				        type : 'POST',
+						data : {
+								"followId" : followId
+						},
+						beforeSend : function(request) {
+								request.setRequestHeader(csrfHeader,csrfToken); // 添加  CSRF Token 
+						},
+						success : function(data) {
+							if (data.success) {
+									alert(data.message);
+									// 成功后，刷新
+									getFollow(postId);
+							} else {
+									alert(data.message);
+							}
+						},
+						error : function() {
+							alert("error!");
+						}
+					});
+			};
+
+			// 取消点赞
+			cancelVote = function(voteId,followId) {
+				// 获取 CSRF Token 
+				var csrfToken = $("meta[name='_csrf']").attr("content");
+				var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				$.ajax({
+				    url : '/votes/follow/' + voteId+ '?followId=' + followId,
+					type : 'DELETE',
+					beforeSend : function(request) {
+							request.setRequestHeader(csrfHeader,csrfToken); // 添加  CSRF Token 
+					},
+					success : function(data) {
+							if (data.success) {
+							   alert(data.message);
+							   // 成功后，刷新
+							   getFollow(postId);
+							} else {
+								alert(data.message);
+							}
+					},
+					error : function() {
+							alert("error!");
+					}
+				});
+			};
+			
+			
+			// 获取最热帖子列表
+			function getHotPost() {
+				// 获取 CSRF Token 
+				var csrfToken = $("meta[name='_csrf']").attr("content");
+				var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+				$.ajax({
+					url : '/post/rank',
+					type : 'GET',
+					data : {
+						"order" : "hot",
+						"pageSize": 10
+					},
+					beforeSend : function(request) {
+						request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+					},
+					success : function(data) {
+						$("#mainHotContainer").html(data);
+					},
+					error : function() {
+						alert("error!");
+					}
+				});
+			}
+			getHotPost();
+	});
+	</script>
+</body>
+</html>

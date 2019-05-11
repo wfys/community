@@ -1,0 +1,32 @@
+<div id="mainContainerRepleace">
+	<div class="row">
+	   <div class="col-md-12 col-xl-12">
+		<table class="table table-striped table-bordered">
+			<thead>
+				<tr>
+					<th data-field="id">ID</th>
+					<th data-field="username">充值账号</th>
+					<th data-field="payType">支付方式</th>
+					<th data-field="money">金额</th>
+					<th data-field="pay">支付</th>
+					<th data-field="creatTime">订单时间</th>
+				</tr>
+			</thead>
+			<tbody>
+
+				<tr th:each="rechage : ${model.rechargeList}">
+					<td th:text="${rechage.id}">1</td>
+					<td th:text="${rechage.user.username}">1</td>
+					<td >支付宝</td>
+					<td><sapn th:text="${rechage.money}"></sapn>元</td>
+					<td th:text="${rechage.pay}">1</td>
+					<td th:text="${rechage.createTime}">1</td>
+				</tr>
+
+			</tbody>
+
+		</table>
+		<div th:replace="~{users/recharge_page :: page}">...</div>
+     </div>
+	</div>
+</div>

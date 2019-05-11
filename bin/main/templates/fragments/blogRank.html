@@ -1,0 +1,32 @@
+<style>
+.detail-info span{
+    margin-right:5px;
+    font-size:12px;
+ }
+</style>
+<div class="panel panel-default">
+	<div class="panel-heading normalFont" th:text="${rankTitle}"></div>
+	<ul class="list-group" th:each="blog,blogStat : ${model.blogRank}"
+		th:object="${blog}">
+		<li class="list-group-item normalFont">
+			<div class="row">
+				<div class="col-md-2">
+					<a th:href="'/u/'+ *{user.username}" class="card-link"
+						th:title="*{user.name}"> <img
+						class="media-object img-circle"
+						th:src="*{user.getAvater()} == null ? '/favicon.ico' : *{user.getAvater()}">
+					</a>
+
+				</div>
+				<div class="col-md-10">
+				     <div><a th:href="'/blog/detail/'+${blog.id}" th:text="${blog.title}" class="box-link"></a></div>
+					 <div class="detail-info">
+						      <span><i class="glyphicon glyphicon-time" aria-hidden="true"></i>[[${#dates.format(blog.createTime,'yyyy-MM-dd HH:mm:ss')}]]</span> 
+						      <span><i class="glyphicon glyphicon-eye-open" aria-hidden="true"></i>[[${blog.readSize}]]</span>
+						      <span><i class="glyphicon glyphicon-comment" aria-hidden="true"></i>[[${blog.commentSize}]]</span>
+						      <span><i class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></i>[[${blog.likeSize}]]</span>
+					 </div>
+				</div>
+			</div>
+	</ul>
+</div>

@@ -1,0 +1,33 @@
+<style>
+.detail-info span{
+    margin-right:5px;
+    font-size:12px;
+ }
+</style>
+<div class="panel panel-default">
+	<div class="panel-heading normalFont" th:text="${rankTitle}"></div>
+	<ul class="list-group" th:each="post,postStat : ${model.postRank}"
+		th:object="${post}">
+		<li class="list-group-item normalFont">
+			<div class="row">
+				<div class="col-md-2">
+					<a th:href="'/u/'+ *{user.username}" class="card-link"
+						th:title="*{user.name}"> <img
+						class="media-object img-circle"
+						th:src="*{user.getAvater()} == null ? '/favicon.ico' : *{user.getAvater()}">
+					</a>
+
+				</div>
+				<div class="col-md-10">
+				     <h4 class="media-heading"><a th:href="'/post/detail/?keyword='+${post.tags}" th:text="${post.tags}" class="tags-link"></a>
+						<a th:href="'/post/detail/'+${post.id}" th:text="${post.title}" class="card-link"></a></h4>
+					<div class="detail-info">
+						      <span><i class="glyphicon glyphicon-time" aria-hidden="true"></i>[[${#dates.format(post.createTime,'yyyy-MM-dd HH:mm:ss')}]]</span> 
+						      <span><i class="glyphicon glyphicon-eye-open" aria-hidden="true"></i>[[${post.readSize}]]</span>
+						      <span><i class="glyphicon glyphicon-comment" aria-hidden="true"></i>[[${post.followSize}]]</span>
+						      <span>悬赏金币[[${post.spendGold}]]</span>
+					</div>
+				</div>
+			</div>
+	</ul>
+</div>

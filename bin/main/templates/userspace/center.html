@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head th:replace="~{fragments/header :: headInfo}">
+
+</head>
+
+<body>
+	<div th:replace="~{fragments/header :: header}"></div>
+	<style>
+    .content-profile {
+	margin-top: 2.5em;
+	background-color: #fff;
+	padding: 20px;
+    }
+    .persinalHeader{
+       background-image: url("/imgs/main/userspaceBg.png");
+       background-repeat:no-repeat;
+       background-size:100% 100%;
+       height:180px;
+       padding-top:96px;
+    }
+    .h-user{
+        height:84px;
+        padding-left:20px;
+    }
+    .h-avatar{
+        position: relative;
+        float: left;
+        width: 64px;
+        height: 64px;
+    }
+    .h-avatar img{
+        width: 64px;
+        height: 64px;
+        border: 2px solid hsla(0,0%,100%,.4);
+        border-radius: 52px;
+    }
+    .user-auth{
+        display: block;
+        right: 0;
+        top: 44px;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        background-image: url(//s1.hdslb.com/bfs/static/jinkela/space/asserts/user-auth.png);
+        background-repeat:no-repeat;
+        background-position: -38px -53px;
+    }
+    .h-basic{
+        float: left;
+        color: #fff;
+        font-size: 0;
+        margin: 10px 0 0 20px;
+        width: 740px;
+    }
+    .h-name{
+        display: inline-block;
+        margin-right: 5px;
+        font-weight: 700;
+        line-height: 18px;
+        font-size: 18px;
+        vertical-align: middle;
+    }
+    .h-type{
+        display: inline-block;
+        height: 16px;
+        line-height: 16px;
+        border-radius: 4px;
+        font-size: 12px;
+        color: #fff;
+        padding: 0 5px;
+        background-color: #f45a8d;
+        vertical-align: middle;
+        margin-right: 5px;
+    }
+    .h-fans{
+        width: 20px;
+        height: 16px;
+        line-height: 14px;
+        font-size: 12px;
+        color: #ff85ad;
+        background: #fff;
+        border: 1px solid #ff85ad;
+        border-radius: 4px;
+        box-sizing: border-box;
+        position: relative;
+        display: inline-block;
+        vertical-align: middle;
+        text-align: center;
+    }
+    .h-basic-spacing{
+        display: block;
+    }
+    .h-basic-spacing h4{
+        color: #d6dee4;
+        font-size: 14px;
+        line-height: 26px;
+        height: 26px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .actions{
+        float: left;
+        padding:30px 0px 0px 20px;
+        margin-left:100px;
+    }
+    .h-follow{
+        background: #f25d8e;
+        box-shadow: 0 0 0 2px #fff;
+        color: #fff;
+        cursor: pointer;
+        display: inline-block;
+        font-size: 14px;
+        text-align: center;
+        margin: 0 20px 17px 0;
+        width: 76px;
+        line-height: 30px;
+        border-radius: 4px
+    }
+    .nav-Title .nav{
+        padding:0px 20px;
+        font-size:18px;
+    }
+    .list-group{
+        margin-top:10px;
+    }
+    .list-selected{
+    border-left:5px solid #009688;
+    background-color:#d2d2d2;
+    }
+    .selectedOption{
+      padding:5px 0px 5px 10px;
+      background-color: #f2f5f7;
+    }
+    </style>
+	<!-- Page Content -->
+	<div class="container content-profile">
+	    <span style="display:none" id="principal" data-th-attr="principal=${principal}"></span>
+		<div class="row">
+			<div class="persinalHeader">
+				<div class="h-user">
+				   <div class="h-avatar">
+				      <img class="img-circle" th:src="${user.getAvater()} == null ? '/favicon.ico' : ${user.getAvater()}">
+				      <span class="user-auth" title="个人认证"></span>
+				   </div>
+				   <div class="h-basic">
+				      <span class="h-name" th:text="${user.name}"></span>
+				      <span class="h-type">年度新人</span>
+				      <span class="h-fans">粉</span>
+				      <div class="h-basic-spacing">
+				          <h4>邮箱：<span th:text="${user.email}"></span></h4>
+				      </div>
+				   </div>
+				   <div class="actions">
+				      <span class="h-follow" th:attr="username= ${user.username}">关注</span>
+				   </div>
+				</div>
+			</div>
+			<div class="nav-Title">
+				<ul class="nav nav-tabs">
+                   <li role="presentation" class="activeOption"><a th:href="'/u/'+ ${user.username}">博客</a></li>
+                   <li role="presentation"><a th:href="'/u/'+ ${user.username}+'/postManage'">论坛</a></li>
+                   <li role="presentation"><a th:href="'/contacts/'+ ${user.username}">关注</a></li>
+                </ul>
+			</div>
+			<div class="col-md-2 col-xl-2 normalFont">
+				<!-- 菜单 -->
+				<div class="list-group">
+				     <a href="javascript:void(0)" data-th-attr="url='/u/' + ${user.username}+'/blogManage?catalog=0'" 
+                       class="list-group-item list-selected">所有分类·</a>
+                    <a href="javascript:void(0)" th:each="catalog : ${model.catalogs}" data-th-attr="url='/u/' + ${user.username}+'/blogManage?catalog='+${catalog.id}" 
+                       class="list-group-item" th:text="${catalog.name}"></a>
+                </div>
+			</div>
+
+			<!-- 右侧栏目 -->
+			<div class="col-md-10 col-xl-10">
+				<div id="rightContainer"></div>
+			</div>
+
+		</div>
+	</div>
+	<!-- /.container -->
+
+
+	<div th:replace="~{fragments/footer :: footer}">...</div>
+	<script>
+	$(".h-follow").click(function(){
+		// 获取 CSRF Token 
+		var csrfToken = $("meta[name='_csrf']").attr("content");
+		var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+		var username=$(this).attr("userName");
+		if(principal==null){
+			alert("请先登录再关注");
+			return;
+		}
+        $.ajax({
+				url : '/contacts/add/'+username,
+		        type : 'POST',
+				beforeSend : function(request) {
+						request.setRequestHeader(csrfHeader,csrfToken); // 添加  CSRF Token 
+				},
+				success : function(data) {
+					if (data.success) {
+						alert(data.message);
+					} else {
+						alert(data.message);
+					}
+				},
+				error : function() {
+					alert("error!");
+				}
+			});
+	})
+	</script>
+	<!-- JavaScript -->
+	<script src="../../js/users/personal.js"
+		th:src="@{/js/users/personal.js}"></script>
+
+</body>
+</html>

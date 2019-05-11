@@ -1,0 +1,91 @@
+<!-- JavaScript -->
+<script th:src="@{/js/users/main.js}"></script>
+
+<div class="row">
+
+	<div class="col-md-5 col-xl-6">
+	    <div class="input-group">
+      <input type="text" class="form-control" id="searchUserName" placeholder="输入账号进行搜索">
+      <span class="input-group-btn">
+        <a class="btn btn-success" id="searchUserNameBtn">
+				<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+			</a>
+      </span>
+    </div>
+       
+	</div>
+	<div  class="col-md-7 col-xl-6">
+		<a class="btn btn-success" data-toggle="modal"
+			data-target="#flipFlop" role="button" id="addUser">
+			<span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+	</div>
+</div>
+
+<div id="mainContainerRepleace">
+	<div class="row">
+	   <div class="col-md-12 col-xl-12">
+		<table class="table table-striped table-bordered">
+			<thead>
+				<tr>
+					<th data-field="id">ID</th>
+					<th data-field="username">账号</th>
+					<th data-field="name">昵称</th>
+					<th data-field="email">邮箱</th>
+					<th data-field="authorities">角色</th>
+					<th data-field="gold">金币</th>
+					<th data-field="operation">操作</th>
+				</tr>
+			</thead>
+			<tbody>
+
+				<tr th:each="user : ${model.userList}">
+					<td th:text="${user.id}">1</td>
+					<td th:text="${user.username}">1</td>
+					<td th:text="${user.name}">1</td>
+					<td th:text="${user.email}">1</td>
+					<td th:text="${user.authorities[0]}">1</td>
+					<td th:text="${user.gold}">1</td>
+					<td>
+						<div>
+							<a class="btn btn-success btn-xs blog-edit-user" data-toggle="modal"
+								data-target="#flipFlop" role="button"
+								data-th-attr="userId=${user.id}"> 
+								<span class="glyphicon glyphicon-pencil" aria-hidden="true">
+							</a>
+							&nbsp;&nbsp;
+							 <a class="btn btn-danger btn-xs blog-delete-user" role="button"
+								data-th-attr="userId=${user.id}"> <span class="glyphicon glyphicon-trash" aria-hidden="true">
+							</a>
+						</div>
+					</td>
+				</tr>
+
+			</tbody>
+
+		</table>
+		<div th:replace="~{users/user_page :: page}">...</div>
+     </div>
+	</div>
+</div>
+
+<!-- The modal -->
+<div class="modal fade" id="flipFlop" tabindex="-1" role="dialog"
+	aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+			    <button type="button" class="close" data-dismiss="modal"
+					aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title" id="modalLabel">新增/编辑</h4>
+			</div>
+			<div class="modal-body" id="userFormContainer"></div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" data-dismiss="modal" id="submitEdit">确认</button>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+			</div>
+		</div>
+	</div>
+</div>
+

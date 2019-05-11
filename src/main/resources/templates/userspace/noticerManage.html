@@ -1,0 +1,130 @@
+<style>
+.detailInfo span {
+	margin-right: 15px;
+	margin-left: 15px;
+	font-size: 16px;
+}
+
+#mainContainerRepleace {
+	margin-top: 10px;
+}
+
+.media {
+	padding-left: 10px;
+	padding-top: 10px;
+	border-bottom: 1px solid #c2c2c2;
+}
+
+.box-link img {
+	width: 25px;
+	height: 25px;
+	border: 1px solid black;
+}
+
+.card-link img {
+	width: 40px;
+	height: 40px;
+	border: 1px solid black;
+}
+
+.card-link {
+	color: black;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.card-link:hover {
+	color: red;
+	text-decoration: none;
+}
+
+.box-link {
+	color: #4f4f4f;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.box-link:hover {
+	color: red;
+	text-decoration: none;
+}
+
+.media-heading {
+	font-weight: bold;
+	font-size: 20px;
+	text-overflow: ellipsis;
+}
+</style>
+<!-- Page Content -->
+<div id="mainContainerRepleace">
+	<div class="row">
+		<div class="col-md-12 col-xl-12">
+			<div th:each="contact : ${model.contactList}">
+				<div class="media">
+					<div class="media-left">
+						<a th:href="'/u/'+ ${contact.noticer.username}" class="card-link"> <img
+							class="media-object img-circle"
+							th:src="${contact.noticer.getAvater()} == null ? '/favicon.ico' : ${contact.noticer.getAvater()}">
+						</a>
+					</div>
+							<div class="media-body">
+							    <div class="row">
+							         <div class="col-md-10">
+							             <h4 class="media-heading"><span th:text="${contact.noticer.name}" class="goldInfo"></span></h4>
+							         </div>
+							         <div class="col-md-2">
+								      <span class="h-follows contact-follow" th:attr="username= ${contact.noticer.username}">关注</span>
+									</div>
+							       
+							    </div>
+								
+								<div class="row">
+								    <div class="col-md-6">
+								    <div  class="normalFont">邮箱：<span th:text="${contact.noticer.email}"></span></div>
+								    </div>
+								    <div class="col-md-6">
+								    <p class="detail-info">
+						               <span>关注时间：[[${#dates.format(contact.createTime,'yyyy-MM-dd HH:mm:ss')}]]</span>
+					                </p>
+									</div>
+								</div>
+							</div>
+						</div>
+				<div></div>
+			</div>
+			<div th:replace="~{userspace/blog_page :: page}">...</div>
+		</div>
+	</div>
+</div>
+	<script>
+	$(".h-follows").click(function(){
+		// 获取 CSRF Token 
+		var csrfToken = $("meta[name='_csrf']").attr("content");
+		var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+		var username=$(this).attr("userName");
+		if(principal==null){
+			alert("请先登录再关注");
+			return;
+		}
+        $.ajax({
+				url : '/contacts/add/'+username,
+		        type : 'POST',
+				beforeSend : function(request) {
+						request.setRequestHeader(csrfHeader,csrfToken); // 添加  CSRF Token 
+				},
+				success : function(data) {
+					if (data.success) {
+						alert(data.message);
+					} else {
+						alert(data.message);
+					}
+				},
+				error : function() {
+					alert("error!");
+				}
+			});
+	})
+	</script>
+	<!-- JavaScript -->

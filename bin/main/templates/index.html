@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head th:replace="~{fragments/header :: headInfo}">
+
+</head>
+<body>
+	<div th:replace="~{fragments/header :: header}"></div>
+    <style>
+    .media {
+	padding-left: 10px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #c2c2c2;
+}
+.card-link img {
+	width: 40px;
+	height: 40px;
+	border: 1px solid black;
+}
+.card-link {
+	color: black;
+	overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.card-link:hover {
+	color: red;
+	text-decoration: none;
+}
+.box-link {
+	color: #4f4f4f;
+	overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.box-link:hover {
+	color: red;
+	text-decoration: none;
+}
+    </style>
+	<!-- Page Content -->
+	<div class="container content-container">
+
+		<div class="row">
+
+			<!-- 轮播图 -->
+			<div class="col-md-7" height="250px">
+				<div id="carousel-generic" class="carousel slide" 
+					data-ride="carousel">
+					<!-- Indicators -->
+					<ol class="carousel-indicators">
+						<li data-target="#carousel-generic" data-slide-to="0"
+							class="active"></li>
+						<li data-target="#carousel-generic" data-slide-to="1"></li>
+						<li data-target="#carousel-generic" data-slide-to="2"></li>
+						<li data-target="#carousel-generic" data-slide-to="3"></li>
+					</ol>
+
+					<!-- Wrapper for slides -->
+					<div class="carousel-inner" role="listbox">
+						<div class="item active">
+							<img src="/imgs/main/nav_1.png">
+							<div class="carousel-caption"><h3>数据结构</h3></div>
+						</div>
+						<div class="item">
+							<img src="/imgs/main/nav_2.png">
+							<div class="carousel-caption"><h3>网络编程</h3></div>
+						</div>
+						<div class="item">
+							<img src="/imgs/main/nav_3.png">
+							<div class="carousel-caption"><h3>操作系统</h3></div>
+						</div>
+						<div class="item">
+							<img src="/imgs/main/nav_4.png">
+							<div class="carousel-caption"><h3>算法分析</h3></div>
+						</div>
+					</div>
+
+					<!-- Controls -->
+					<a class="left carousel-control" href="#carousel-generic"
+						role="button" data-slide="prev"> <span
+						class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+						<span class="sr-only">Previous</span>
+					</a> <a class="right carousel-control" href="#carousel-generic"
+						role="button" data-slide="next"> <span
+						class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+						<span class="sr-only">Next</span>
+					</a>
+				</div>
+				<div>
+				   <h3>关于社区</h3>
+				   <p class="normalFont">乐乐社区成立于2019年4月，是个人的开源学习社区。我们一直不遗余力地推动国内开源软件的应用和发展，为本土开源能力的提高、
+				              开源生态环境的优化提供长期推进的平台。</p>
+				</div>
+				<div>
+				   <h3>友情站点</h3>
+				   <h4 class="linkAdress">
+				      <div class="row">
+				          <div class="col-md-4">
+				             <a href="https://www.zhihu.com">知乎</a>
+				          </div>
+				          <div class="col-md-4">
+				             <a href="https://www.baidu.com">百度</a>
+				          </div>
+				          <div class="col-md-4">
+				             <a href="https://www.csdn.net">CSDN</a>
+				          </div>
+				      </div>
+				   </h4>
+				</div>
+			</div>
+
+			<!-- 右侧栏目 -->
+			<div class="col-md-5">
+				<div id="mainHotContainer">
+			    </div>
+				<div id="mainHotPostContainer">
+			    </div>
+
+			</div>
+		</div>
+		
+	</div>
+	<div th:replace="~{fragments/footer :: footer}">...</div>
+	<!-- JavaScript -->
+	<script>
+	$(function() {
+		
+		// 获取最热博客列表
+		function getHotBlog() {
+			// 获取 CSRF Token 
+			var csrfToken = $("meta[name='_csrf']").attr("content");
+			var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+			$.ajax({
+				url : '/blog/rank',
+				type : 'GET',
+				data : {
+					"order" : "hot",
+					"pageSize": 5
+				},
+				beforeSend : function(request) {
+					request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+				},
+				success : function(data) {
+					$("#mainHotContainer").html(data);
+				},
+				error : function() {
+					alert("error!");
+				}
+			});
+		}
+		getHotBlog();
+		
+		// 获取最热博客列表
+		function getHotPost() {
+			// 获取 CSRF Token 
+			var csrfToken = $("meta[name='_csrf']").attr("content");
+			var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+			$.ajax({
+				url : '/post/rank',
+				type : 'GET',
+				data : {
+					"order" : "hot",
+					"pageSize": 5
+				},
+				beforeSend : function(request) {
+					request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+				},
+				success : function(data) {
+					$("#mainHotPostContainer").html(data);
+				},
+				error : function() {
+					alert("error!");
+				}
+			});
+		}
+		getHotPost();
+	
+	});
+	</script>
+</body>
+</html>

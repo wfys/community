@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4" >
+<head th:replace="~{fragments/header :: headInfo}">
+
+</head>
+
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<style>
+.loginSet{
+     background-color: #fff;
+     margin-top:5.5em;
+     margin-bottom:5.5em;
+     border:1px solid black;
+}
+.main_card{
+     background:url(/imgs/main/background_1.png);
+     background-repeat:no-repeat;
+     background-size:100% 100%;
+}
+.loginTitle{
+     border-bottom: 2px solid #ee7700;
+     padding-bottom:10px;
+     text-align:center;
+}
+.errorLogin{
+     color:red;
+     text-align:center;
+     font-size:10px;
+}
+</style>
+<div class="content-container main_card">
+<div class="container">
+    <div class="row">
+    <div class="col-md-3 col-md-offset-8 col-xs-8 col-xs-offset-2 loginSet" >
+		<form  th:action="@{/login}" method="post" onsubmit="return check()">
+			<h2 class="loginTitle">登录</h2>
+			<div class="form-group" >
+				<label for="username" class="col-form-label">账号</label>
+				<div class="input-group">
+				    <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+				    <input type="text" class="form-control" id="username" name="username" maxlength="50" placeholder="请输入账号，可以是手机号">
+                </div>
+			</div>
+			<div class="form-group">
+				<label for="password" class="col-form-label">密码</label>
+				<div class="input-group">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+                    <input type="password" class="form-control" id="password" name="password" maxlength="30" placeholder="请输入密码" >
+                </div>
+			</div>
+			<div class="form-group">
+				 <input type="checkbox" name="remember-me" checked> 记住我
+			</div>
+			<div class="form-group" th:if="${param.error}">                    
+			    <p th:if="${session.SPRING_SECURITY_LAST_EXCEPTION}"> </p>                    
+			    <p th:text="${session.SPRING_SECURITY_LAST_EXCEPTION.message}"></p>                   
+			 </div>
+			 <p th:text=${errorMsg} class="errorLogin"></p>
+			<div class="form-group">
+				<button type="submit" class="btn btn-warning btn-lg btn-block">登录</button>
+			</div>
+		</form>
+    </div>
+    </div>
+</div>
+</div> <!-- /container -->
+<div th:replace="~{fragments/footer :: footer}">...</div>
+<script>
+function check(){
+	var username=$("#username").val();
+	var password=$("#password").val();
+	if(username==null||username==''){
+		$(".errorLogin").html("账号不能为空");
+		return false;
+	}
+	if(password==null||password==''){
+		$(".errorLogin").html("密码不能为空");
+		return false;
+	}
+	return true;
+ 
+}
+</script>
+</body>
+</html>

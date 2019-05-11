@@ -1,0 +1,89 @@
+<div class="row">
+
+	<div class="col-md-2 col-xs-2 col-md-offset-1">
+	     <img th:src="${user.getAvater()} == null ? '/favicon.ico' : ${user.getAvater()}" 
+	          width="100%" height="100%" class="img-circle">
+	      
+	      <button type="button" class="btn btn-danger normalFont blog-edit-avatar" data-toggle="modal" data-target="#flipFlop"
+			 data-th-attr="username=${user.username}">修改头像</button>  
+    </div>
+       
+	
+		
+</div>
+    <!-- The modal -->
+	<div class="modal fade" id="flipFlop" tabindex="-1" role="dialog"
+		aria-labelledby="modalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title" id="modalLabel">修改头像</h4>
+				</div>
+				<div class="modal-body" id="avatarFormContainer"></div>
+				<div class="modal-footer">
+					<button class="btn btn-primary" data-dismiss="modal"
+						id="submitEditAvatar">确认</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">取消</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+	// DOM 加载完再执行
+	$(function() {
+		var avatarApi;
+		
+		// 获取编辑用户头像的界面
+		$(".row").on("click",".blog-edit-avatar", function () { 
+			avatarApi = "/personal/"+$(this).attr("username")+"/avatar";
+			$.ajax({ 
+				 url: avatarApi, 
+				 success: function(data){
+					 $("#avatarFormContainer").html(data);
+			     },
+			     error : function() {
+			    	 alert("error!");
+			     }
+			 });
+		});
+		
+		// 提交用户头像的图片数据
+		$("#submitEditAvatar").on("click", function () {  
+		    var formData = new FormData();
+		    formData.append("file",$("#file")[0].files[0]);
+		    // 获取 CSRF Token 
+			var csrfToken = $("meta[name='_csrf']").attr("content");
+			var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+	    	// 保存头像更改到数据库
+			$.ajax({ 
+				 url: avatarApi, 
+				 type: 'POST',
+				 data:formData,
+				 processData:false,
+				 contentType:false,
+				 beforeSend: function(request) {
+	                 request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+	             },
+				 success: function(data){
+					 if (data.success) {
+						// 成功后，置换头像图片
+						 location.reload();
+						 alert(data.message);
+					 } else {
+						 alert("error!"+data.message);
+					 }
+					 
+			     },
+			     error : function() {
+			    	 alert("error!");
+			     }
+			 });
+		}); 
+		
+	});
+	</script>

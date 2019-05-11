@@ -1,0 +1,61 @@
+ <div class="row">
+     <div class="col-md-8">
+         <h3>选择图片：</h3>
+         <form>
+             <input type="file" name="file" id="file" onchange="uploadfile(this)"/>
+             <p id="UPtip" style="color:red;font-size:1.5rem"></p>
+             <p id="pic_file_show" style="color:green;font-size:1.5rem"></p>
+             <br>
+         </form>  
+         <p style="color:red;">注意:文件大小小于3M，请选择格式为*.jpg、*.gif、*.png、*.jpeg 的图片，最好图片像素点宽高相等</p>  
+     </div>
+     <div class="col-md-4">
+         <h3>预览图：</h3>
+         <img th:src="${user.getAvater()} == null ? '/favicon.ico' : ${user.getAvater()}" 
+		    id="img0" width="100%" height="100%">
+     </div>
+</div>
+<script>   
+$("#file").change(function(){  
+
+		 var objUrl = getObjectURL(this.files[0]) ;//获取文件信息  
+		  if (objUrl) {  
+			  $("#img0").attr("src", objUrl);  
+		 }   
+}) ;  
+
+function getObjectURL(file) {  
+		 var url = null;   
+		 if (window.createObjectURL!=undefined) {  
+			 url = window.createObjectURL(file) ;  
+		 } else if (window.URL!=undefined) { // mozilla(firefox)  
+			 url = window.URL.createObjectURL(file) ;  
+		 } else if (window.webkitURL!=undefined) { // webkit or chrome  
+			 url = window.webkitURL.createObjectURL(file) ;  
+		 }  
+		 return url;
+}
+//限制格式与大小
+function uploadfile(_this){
+    var ss='';
+    var uptip=false;
+    for(var i=0;i<_this.files.length;i++){
+        var xn=_this.files[i].name;
+        var xs=Math.round(_this.files[i].size / 1024);
+        var xtype=xn.substr(xn.length-3);
+        var xtype2=xn.substr(xn.length-4);
+        if((xtype!="jpg" && xtype!="png" && xtype!="gif" && xtype2!="jpeg") || xs>3072){
+            uptip=true;
+        }
+        ss+="图片大小为："+" : "+xs+"kb"+"<br/>";
+    }
+    if(uptip){
+        $("#UPtip").html("请检查大小和格式").show();
+    }else{
+        $("#UPtip").hide();
+    }
+    $("#pic_file_show").html(ss);
+
+}
+</script>  
+ 

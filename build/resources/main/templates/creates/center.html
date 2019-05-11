@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head th:replace="~{fragments/header :: headInfo}">
+
+</head>
+
+<body>
+	<div th:replace="~{fragments/header :: header}"></div>
+	<style>
+    .content-profile {
+	margin-top: 2.0em;
+	background-color: #fff;
+	padding: 20px;
+    }
+    .persinalHeader{
+    border-bottom:1px solid gray;
+    margin-bottom: 1.5em;
+    }
+    .list-selected{
+    border-left:5px solid #009688;
+    background-color:#d2d2d2;
+    }
+    .selectedOption{
+      padding:5px 0px 5px 10px;
+      background-color: #f2f5f7;
+    }
+    </style>
+	<!-- Page Content -->
+	<div class="container content-profile">
+
+		<div class="row">
+			<div class="persinalHeader">
+				<h2>创作中心</h2>
+			</div>
+			<!-- 左侧栏目 -->
+			<div class="col-md-2 col-xl-2 normalFont">
+				<!-- 菜单 -->
+				<div class="list-group">
+                    <a href="javascript:void(0)" data-th-attr="url='/create/' + ${#authentication.Principal.username}+'/blogManage'" class="list-group-item list-selected">博客管理</a>
+                    <a href="javascript:void(0)" data-th-attr="url='/create/' + ${#authentication.Principal.username}+'/postManage'" class="list-group-item">帖子管理</a>
+                    <a href="javascript:void(0)" data-th-attr="url='/catalog/' + ${#authentication.Principal.username}" class="list-group-item">分类管理</a>
+                    <a href="javascript:void(0)" data-th-attr="url='/create/' + ${#authentication.Principal.username}+'/blogEdit'" class="list-group-item">写博客</a>
+                    <a href="javascript:void(0)" data-th-attr="url='/create/' + ${#authentication.Principal.username}+'/postEdit'" class="list-group-item">写帖子</a>
+                    <a href="javascript:void(0)" data-th-attr="url='/create/' + ${#authentication.Principal.username}+'/help'" class="list-group-item">编辑帮助</a>
+                </div>
+			</div>
+
+			<!-- 右侧栏目 -->
+			<div class="col-md-10 col-xl-10">
+				<div id="rightContainer"></div>
+			</div>
+			<!-- /.row -->
+
+		</div>
+	</div>
+	<!-- /.container -->
+
+
+	<div th:replace="~{fragments/footer :: footer}">...</div>
+
+
+	<!-- JavaScript -->
+	<script src="../../js/users/personal.js"
+		th:src="@{/js/users/personal.js}"></script>
+
+</body>
+</html>

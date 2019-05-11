@@ -1,0 +1,163 @@
+<style>
+.detail-info span{
+    margin-right:15px;
+    margin-left:15px;
+ }
+.media{
+    padding-left:10px;
+    padding-top:10px;
+    border-bottom:1px solid #c2c2c2;
+ }
+ .box-link img {
+	width: 25px;
+	height: 25px;
+	border: 1px solid black;
+}
+.box-link {
+	color: #4f4f4f;
+	overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.box-link:hover {
+	color: red;
+	text-decoration: none;
+}
+.media-heading{
+    font-weight:bold;
+    font-size:20px;
+    text-overflow:ellipsis;
+}
+#mainContainerRepleace{
+    background-color:#f9f9f9;
+    margin-top:30px;
+}
+</style>
+<ul class="nav nav-tabs selectedOption">
+	<div class="row">
+		<div class="col-md-3 col-xl-3">
+			<select id="orderSelected" name="order" class="form-control"
+				data-placeholder="请选择">
+				<option value="new">按时间排序</option>
+				<option value="hot">按热度排序</option>
+			</select>
+		</div>
+		<div class="col-md-4 col-xl-4">
+			<div class="input-group">
+				<input type="text" class="form-control" id="keyword"
+					placeholder="请输入标题名进行搜索"> <span class="input-group-btn">
+					<a class="btn btn-success" id="searchKeywordBtn"> <span
+						class="glyphicon glyphicon-search" aria-hidden="true"></span>
+				</a>
+				</span>
+			</div>
+		</div>
+	</div>
+</ul>
+<div id="mainContainerRepleace">
+	<div class="row">
+		<div class="col-md-12 col-xl-12">
+			<div th:each="blog : ${model.blogList}">
+				<div class="media">
+					<div class="media-body">
+						<h4 class="media-heading"><a th:href="'/blog/detail/'+${blog.id}" th:text="${blog.title}" class="box-link"></a></h4>
+						<p th:text="${blog.summary}"></p>
+						<div class="row">
+						   <div class="col-md-9">
+						      <span>
+					           <a th:href="'/u/' + ${blog.user.username}" class="box-link"> <img class="img-circle"
+						       th:src="${blog.user.getAvater()} == null ? '/favicon.ico' : ${blog.user.getAvater()}">
+					           </a> <a class="box-link" th:href="'/u/' + ${blog.user.username}"
+						          th:text="${blog.user.username}"> </a>
+				               </span>
+						     <span class="detail-info">
+						      <span><i class="glyphicon glyphicon-time" aria-hidden="true"></i>[[${#dates.format(blog.createTime,'yyyy-MM-dd HH:mm:ss')}]]</span> 
+						      <span><i class="glyphicon glyphicon-eye-open" aria-hidden="true"></i>[[${blog.readSize}]]</span>
+						      <span><i class="glyphicon glyphicon-comment" aria-hidden="true"></i>[[${blog.commentSize}]]</span>
+						      <span><i class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></i>[[${blog.likeSize}]]</span>
+						      <span><i class="glyphicon glyphicon-usd" aria-hidden="true"></i>[[${blog.spendSize}]]</span>
+					         </span>
+						   </div>
+						   <div class="col-md-3">
+							 <a class="btn btn-danger btn-xs blog-delete" th:attr="blogId=${blog.id}">
+							     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+						   </div>
+						</div>
+						
+					</div>
+				</div>
+				<div>
+				</div>
+			</div>
+			<div th:replace="~{admins/adminBlog_page :: page}">...</div>
+		</div>
+	</div>
+</div>
+<script>
+//DOM 加载完再执行
+$(function() {
+	 
+	var _pageSize=20; // 存储用于搜索
+	// 根据用户名、页面索引、页面大小获取用户列表
+	function getBlogsByName(pageIndex, pageSize) {
+		 $.ajax({ 
+			 url: "/create/adminBlog", 
+			 contentType : 'application/json',
+			 data:{
+				 "async":true, 
+				 "pageIndex":pageIndex,
+				 "pageSize":pageSize,
+				 "order":$("#orderSelected").val(),
+				 "keyword":$("#keyword").val()
+			 },
+			 success: function(data){
+				 $("#mainContainerRepleace").html(data);
+		     },
+		     error : function() {
+		    	 alert("error!");
+		     }
+		 });
+	}
+   
+	// 关键字搜索
+	$("#searchKeywordBtn").click(function() {
+		getBlogsByName(0, _pageSize);
+	});
+	
+	// 最新\最热切换事件
+	$("#orderSelected").change(function() {
+		getBlogsByName(0, _pageSize);
+	});
+	
+	// 删除博客
+	$(".blog-delete").click(function() {
+		// 获取 CSRF Token 
+		var csrfToken = $("meta[name='_csrf']").attr("content");
+		var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+		if (confirm("确认删除？")==false) return;
+		var url="/create/admin"+"/blogDelete/"+$(this).attr("blogId");
+		$.ajax({ 
+			 url: url, 
+			 type: 'DELETE', 
+			 beforeSend: function(request) {
+                 request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+             },
+			 success: function(data){
+				 if (data.success) {
+					 // 从新刷新主界面
+					 getBlogsByName(0, _pageSize);
+				 } else {
+					 alert(data.message);
+				 }
+		     },
+		     error : function() {
+		    	 alert("error");
+		     }
+		 });
+	});
+			
+});
+</script>
+
+

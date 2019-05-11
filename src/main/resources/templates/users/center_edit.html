@@ -1,0 +1,57 @@
+<div class="row">
+    <div class="col-md-5 col-xl-9 normalFont col-md-offset-1">
+		<form th:action="'/personal/'+${user.username}+'/edit'"
+			method="post" th:object="${user}" onsubmit="return check()">
+			<input type="hidden" name="id" id="userId" th:value="*{id}">
+
+			<div class="form-group">
+				<label for="username" class="col-form-label">账&nbsp;号：</label> <input
+					type="text" class="form-control" id="username" name="username"
+					th:value="*{username}" readonly="readonly">
+
+			</div>
+			<div class="form-group">
+				<label for="email" class="col-form-label">邮&nbsp;箱：</label> <input
+					type="email" class="form-control" id="email" name="email"
+					th:value="*{email}" maxlength="50" placeholder="请输入邮箱">
+			</div>
+			<div class="form-group">
+				<label for="name" class="col-form-label">昵&nbsp;称：</label> <input
+					type="text" class="form-control" id="name" name="name"
+					th:value="*{name}" maxlength="20" placeholder="请输入昵称，至少2个字符，至多20个">
+			</div>
+			<div class="form-group">
+				<label for="password" class="col-form-label">密&nbsp;码：</label> <input
+					type="password" class="form-control" id="password" name="password"
+					th:value="*{password}" maxlength="30"
+					placeholder="请输入密码，字母或特殊符号和数字结合">
+			</div>
+			<p class="errorLogin" style="color:red;font-size:10px;" ></p>
+			<div class="form-group">
+				<button type="submit" class="btn btn-primary">确&nbsp;认</button>
+			</div>
+		</form>
+	</div>
+</div>
+<script>
+function check(){
+	var regEmail=/^[0-9A-z]{4,}@[A-z]+\.(com|cn|org)$/;
+	var email=$("#email").val();
+	var name=$("#name").val();
+	var password=$("#password").val();
+	if(!regEmail.test(email)){
+		$(".errorLogin").html("邮箱需要含有@字符，且时正确的邮箱号码");
+		return false;
+	}
+	if(name==null||name.length<2||name.length>20){
+		$(".errorLogin").html("昵称长度在2~20");
+		return false;
+	}
+	if(password==null||password.length<6){
+		$(".errorLogin").html("密码不能小于6位");
+		return false;
+	}
+	return true;
+ 
+}
+</script>

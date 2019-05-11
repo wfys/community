@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head th:replace="~{fragments/header :: headInfo}">
+
+</head>
+
+<body>
+	<div th:replace="~{fragments/header :: header}"></div>
+	<style>
+    .content-profile {
+	margin-top: 2.0em;
+	background-color: #fff;
+	padding: 20px;
+    }
+    .persinalHeader{
+    border-bottom:1px solid gray;
+    margin-bottom: 1.5em;
+    }
+    .redColor{
+      color:red;
+      margin-bottom:50px;
+      margin-top:50px;
+    }
+    </style>
+	<!-- Page Content -->
+	<div class="container content-profile">
+
+		<div class="row">
+			<div class="persinalHeader">
+				<h2>充值结果</h2>
+			</div>
+			<div class="col-md-8 col-md-offset-2">
+			<h4>你（<span th:text="${user.username}"></span>）的金币余额为：<span th:text="${user.gold}"></span></h4>
+			<h1 class="text-center redColor">充值成功<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span></h1>
+			    <div class="normalFont row">
+			          <div class="col-md-8 col-md-offset-4">
+			              <p><span th:text="${user.username}"></span>
+			              <span>充值了</span>
+			              <span th:text="${total_amount}"></span>
+			              <span>元（<sapn th:text="${total_amount}*10"></sapn>金币）</span></p>
+			              <p><span>订单号为：</span>
+			              <sapn th:text="${out_trade_no}"></sapn></p>
+			              <p class="showDetail"><span>状态：</span>
+			              <sapn th:text="${message}"></sapn></p>
+			          </div>
+			          
+			    </div>
+			    <p>
+			         <a th:href="@{'/personal/' + ${#authentication.Principal.username}}">
+			            <span class="normalFont redColor"> <<返回个人中心 </span>
+			         </a>
+			    <p>
+			</div>
+			<!-- /.row -->
+
+		</div>
+	</div>
+	<!-- /.container -->
+
+
+	<div th:replace="~{fragments/footer :: footer}">...</div>
+
+</body>
+</html>

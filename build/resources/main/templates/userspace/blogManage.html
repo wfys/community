@@ -1,0 +1,112 @@
+<style>
+.detailInfo span {
+	margin-right: 15px;
+	margin-left: 15px;
+	font-size: 16px;
+}
+
+#mainContainerRepleace {
+	background-color: #f9f9f9;
+	margin-top: 10px;
+}
+
+.topSet {
+	margin-top: 20px;
+}
+
+.media {
+	padding-left: 10px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #c2c2c2;
+}
+
+.box-link img {
+	width: 25px;
+	height: 25px;
+	border: 1px solid black;
+}
+
+.card-link img {
+	width: 40px;
+	height: 40px;
+	border: 1px solid black;
+}
+
+.card-link {
+	color: black;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.card-link:hover {
+	color: red;
+	text-decoration: none;
+}
+
+.box-link {
+	color: #4f4f4f;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.box-link:hover {
+	color: red;
+	text-decoration: none;
+}
+
+.summary {
+	font-size: 14px;
+	color: gray;
+	padding: 0px 0px 5px 0px;
+	text-overflow: ellipsis;
+}
+
+.media-heading {
+	font-weight: bold;
+	font-size: 20px;
+	text-overflow: ellipsis;
+}
+</style>
+<!-- Page Content -->
+<div id="mainContainerRepleace">
+	<div class="row">
+		<div class="col-md-12 col-xl-12">
+			<div th:each="blog : ${model.blogList}">
+				<div class="media">
+					<div class="media-body">
+						<div class="media-heading">
+							<a th:href="'/blog/detail/'+${blog.id}" th:text="${blog.title}"
+								class="box-link"></a>
+						</div>
+						<div th:text="${blog.summary}" class="summary"></div>
+						<div class="row">
+							<div class="col-md-12 normalFont">
+								<span> <a th:href="'/u/' + ${blog.user.username}"
+									class="box-link"> <img class="img-circle"
+										th:src="${blog.user.getAvater()} == null ? '/favicon.ico' : ${blog.user.getAvater()}">
+								</a> <a class="box-link" th:href="'/u/' + ${blog.user.username}"
+									th:text="${blog.user.name}"> </a>
+								</span> <span class="detailInfo"> <span><i
+										class="glyphicon glyphicon-time" aria-hidden="true"></i>[[${#dates.format(blog.createTime,'yyyy-MM-dd
+										HH:mm:ss')}]]</span> <span><i
+										class="glyphicon glyphicon-eye-open" aria-hidden="true"></i>[[${blog.readSize}]]</span>
+									<span><i class="glyphicon glyphicon-comment"
+										aria-hidden="true"></i>[[${blog.commentSize}]]</span> <span><i
+										class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></i>[[${blog.likeSize}]]</span>
+									<span><i class="glyphicon glyphicon-usd"
+										aria-hidden="true"></i>[[${blog.spendSize}]]</span>
+								</span>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				<div></div>
+			</div>
+			<div th:replace="~{userspace/blog_page :: page}">...</div>
+		</div>
+	</div>
+</div>

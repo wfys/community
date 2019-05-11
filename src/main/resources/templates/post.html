@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head th:replace="~{fragments/header :: headInfo}">
+
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<style>
+.detailInfo span {
+	margin-right: 15px;
+	margin-left: 15px;
+	font-size: 16px;
+}
+.topSet{
+    margin-top:20px;
+}
+#mainContainerRepleace{
+    background-color:#f9f9f9;
+    margin-top:30px;
+}
+.media {
+	padding-left: 10px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #c2c2c2;
+}
+
+.box-link img {
+	width: 25px;
+	height: 25px;
+	border: 1px solid black;
+}
+.card-link img {
+	width: 40px;
+	height: 40px;
+	border: 1px solid black;
+}
+.card-link {
+	color: black;
+	overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.card-link:hover {
+	color: red;
+	text-decoration: none;
+}
+.box-link {
+	color: #4f4f4f;
+}
+
+.box-link:hover {
+	color: red;
+	text-decoration: none;
+}
+
+.tags-link{
+    color:#6b5353;
+    font-size:16px;
+}
+.tags-link:hover {
+	color: #FFB800;
+	text-decoration: none;
+}
+</style>
+<!-- Page Content -->
+<div class="container content-container">
+     <div class="row">
+		<div class="col-md-8">
+			<div class="row topSet">
+			    <div class="col-md-6 col-md-offset-3">
+			       <div class="input-group">
+				     <input type="text" class="form-control" id="keyword" th:value="${keyword}"
+					   placeholder="搜索"> <span class="input-group-btn"><a class="btn btn-default" id="searchKeywordBtn"> <span
+						class="glyphicon glyphicon-search" aria-hidden="true"></span>
+				     </a></span>
+			       </div>
+		        </div>
+		        
+		        <div class="col-md-3">
+		             <select id="orderSelected" name="order" class="form-control" data-placeholder="请选择">
+				         <option value="new">按时间排序</option>
+				         <option value="hot">按热度排序</option>
+			         </select>
+		        </div>
+			</div>
+			
+			<div id="mainContainerRepleace">
+	         <div class="row">
+		      <div class="col-md-12 col-xl-12">
+		      <table class="table table-striped table-bordered">
+			     <thead>
+				  <tr>
+					<th data-field="title">标题</th>
+					<th data-field="username">提问人</th>
+					<th data-field="name">回复数</th>
+					<th data-field="email">悬赏值</th>
+					<th data-field="authorities">人气</th>
+					<th data-field="isSolve">状态</th>
+				 </tr>
+			    </thead>
+			    <tbody>
+				   <tr th:each="post : ${model.postList}">
+					<td><a th:href="'/post?keyword='+${post.tags}" th:text="${post.tags}" class="tags-link"></a>
+					    &nbsp;>&nbsp;<a th:href="'/post/detail/'+${post.id}" th:text="${post.title}" class="card-link"></a></td>
+					<td><a th:href="'/u/' + ${post.user.username}" class="box-link"> <img class="img-circle"
+						    th:src="${post.user.getAvater()} == null ? '/favicon.ico' : ${post.user.getAvater()}">
+					     </a> <a class="box-link" th:href="'/u/' + ${post.user.username}" th:text="${post.user.name}"></a>
+					</td>
+					<td th:text="${post.followSize}"></td>
+					<td th:text="${post.spendGold}"></td>
+					<td th:text="${post.readSize}"></td>
+					<td th:if="${post.isSolve}">解决</td>
+					<td th:if="${post.isSolve} != true">未解决</td>
+				</tr>
+
+			</tbody>
+		   </table>
+			<div th:replace="~{creates/post_page :: page}">...</div>
+		  </div>
+	     </div>
+        </div>
+		</div>
+		
+		<!-- 右侧栏目 -->
+		<div class="col-md-4">
+			<div id="mainHotContainer">
+			</div>
+			<div id="mainNewContainer">
+			</div>
+		</div>
+	</div>
+		
+</div>
+<div th:replace="~{fragments/footer :: footer}">...</div>
+<!-- JavaScript -->
+<script>
+$(function() {
+	 
+	var _pageSize=20; // 存储用于搜索
+	// 根据用户名、页面索引、页面大小获取用户列表
+	function getPostsByName(pageIndex, pageSize) {
+		 $.ajax({ 
+			 url: "/post", 
+			 contentType : 'application/json',
+			 data:{
+				 "async":true, 
+				 "pageIndex":pageIndex,
+				 "pageSize":pageSize,
+				 "order":$("#orderSelected").val(),
+				 "keyword":$("#keyword").val()
+			 },
+			 success: function(data){
+				 $("#mainContainerRepleace").html(data);
+		     },
+		     error : function() {
+		    	 alert("error!");
+		     }
+		 });
+	}
+   
+	// 关键字搜索
+	$("#searchKeywordBtn").click(function() {
+		getPostsByName(0, _pageSize);
+	});
+	
+	// 最新\最热切换事件
+	$("#orderSelected").change(function() {
+		getPostsByName(0, _pageSize);
+	});
+	
+	// 获取最热博客列表
+	function getHotPost() {
+		// 获取 CSRF Token 
+		var csrfToken = $("meta[name='_csrf']").attr("content");
+		var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+		$.ajax({
+			url : '/post/rank',
+			type : 'GET',
+			data : {
+				"order" : "hot",
+				"pageSize": 10
+			},
+			beforeSend : function(request) {
+				request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+			},
+			success : function(data) {
+				$("#mainHotContainer").html(data);
+			},
+			error : function() {
+				alert("error!");
+			}
+		});
+	}
+	getHotPost();
+	
+	// 获取最新博客列表
+	function getNewPost() {
+		// 获取 CSRF Token 
+		var csrfToken = $("meta[name='_csrf']").attr("content");
+		var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+		$.ajax({
+			url : '/post/rank',
+			type : 'GET',
+			data : {
+				"order" : "new",
+				"pageSize": 10
+			},
+			beforeSend : function(request) {
+				request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+			},
+			success : function(data) {
+				$("#mainNewContainer").html(data);
+			},
+			error : function() {
+				alert("error!");
+			}
+		});
+	}
+	getNewPost();
+});
+</script>
+</body>
+</html>

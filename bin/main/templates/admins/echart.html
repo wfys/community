@@ -1,0 +1,136 @@
+<!-- JavaScript -->
+<script th:src="@{/js/echarts.min.js}"></script>
+<script th:src="@{/js/dark.js}"></script>
+<div class="row">
+
+	<div class="col-md-6 col-xl-6">
+	   <div id="blog" style="width: 100%;height:200px;"></div>
+	</div>
+	<div class="col-md-6 col-xl-6">
+	    <div id="post" style="width: 100%;height:200px;"></div>  
+	</div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-xl-12">
+        <div id="main" style="width: 100%;height:400px;"></div>
+    </div>
+</div>
+<script type="text/javascript">
+var blog=[];
+var post=[];
+function getBlogData(){
+	 $.ajax({ 
+		 url: "/admins/echart/blogDay", 
+		 success: function(data){
+			 blog = data.body;
+	     },
+	     error : function(data) {
+	    	 alert("error");
+	     }
+	 });
+ }
+function getPostData(){
+	 $.ajax({ 
+		 url: "/admins/echart/postDay", 
+		 success: function(data){
+			 post = data.body;
+	     },
+	     error : function(data) {
+	    	 alert("error");
+	     }
+	 });
+ }
+getBlogData();
+getPostData();
+setTimeout("initEcharts()",1000);
+function initEcharts(){
+	 var blogDay=[];
+	 var postDay=[];
+	 var allDay=[];
+	 var dayShow=[];
+	 blogDay[0]=blog[0];
+	 postDay[0]=post[0];
+	 allDay[0]=blogDay[0]+postDay[0];
+	 for(var i=1;i<7;i++){
+		 blogDay[i]=blog[i]-blog[i-1];
+		 postDay[i]=post[i]-post[i-1];
+		 allDay[i]=blogDay[i]+postDay[i];
+	 }
+	 var curDate = new Date();
+	 for(var i=0;i<7;i++){
+		 var date = new Date(curDate.getTime() - (6-i)*24*60*60*1000);
+		 dayShow[i]=date.getFullYear()+"/"+parseInt(date.getMonth()+1)+"/"+date.getDate();;
+	 }
+	 initTable("blog",blogDay,dayShow,"博客发布统计表","发布博客量");
+	 initTable("post",postDay,dayShow,"帖子发布统计表","发布帖子量");
+	 initTable("main",allDay,dayShow,"总发布统计表","发布量");
+	 
+}
+function initTable(myChartId,date,y,title,name){
+	// 基于准备好的dom，初始化echarts实例
+	 var myChart = echarts.init(document.getElementById(myChartId),'dark');
+
+	 // 指定图表的配置项和数据
+	 option = {
+       title: {
+           text: title
+       },
+       tooltip : {
+           trigger: 'axis',
+           axisPointer: {
+               type: 'cross',
+               label: {
+                   backgroundColor: '#6a7985'
+               }
+           }
+       },
+       legend: {
+           data:[name]
+       },
+       toolbox: {
+           feature: {
+                saveAsImage: {}
+           }
+       },
+       grid: {
+           left: '3%',
+           right: '4%',
+           bottom: '3%',
+           containLabel: true
+       },
+       xAxis : [
+         {
+           type : 'category',
+           boundaryGap : false,
+           data : y
+         }
+       ],
+       yAxis : [
+         {
+           type : 'value'
+         }
+       ],
+       series : [
+         {
+           name:name,
+           type:'line',
+           stack: '总量',
+           label: {
+               normal: {
+                   show: true,
+                   position: 'top'
+               }
+           },
+           areaStyle: {normal: {}},
+           data:date
+         }
+       ]
+    };
+	 // 使用刚指定的配置项和数据显示图表。
+	 myChart.setOption(option); 
+	
+}
+
+</script>
+

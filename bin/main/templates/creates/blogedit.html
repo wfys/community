@@ -1,0 +1,208 @@
+<style>
+    #title{
+      background-color:#efefef;
+      color:#000000;
+      font-size:22px;
+    }
+    #summary{
+     margin-top:20px;
+     margin-bottom:20px;
+     resize:none;
+     font-size:18px;
+     color:#000000;
+    }
+    .form-control-tag{
+    background-color:#efefef;
+    color:#000000;
+    }
+    #md{
+    font-size:16px;
+    resize:none;
+    height:600px;
+    margin-bottom:20px;
+    }
+    #result{
+     border:1px solid #d1d1d1;
+     background-color:#efefef;
+     height:600px;
+     overflow-y:auto;
+     word-break:break-all;
+     font-size:16px;
+    }
+    #result img{
+     max-width:100%;
+    }
+    #essmageError{
+     color:red;
+     background-color:#efefef;
+     font-size:14px;
+     font-weight:bold;
+     padding-left:40px;
+    }
+</style>
+<div>
+	<div class="row">
+		<div class="col-md-7">
+			<div class="card-block" th:object="${model.blog}">
+				<input type="hidden" name="id" th:value="*{id}" id="Id"> <input
+					type="text" class="form-control" placeholder="输入文章标题" id="title"
+					name="title" th:value="*{title}" maxlength="50">
+				<textarea placeholder="输入博客摘要" class="form-control" id="summary"
+					name="summary" th:text="*{summary}" maxlength="100" rows="4"
+					wrap="virtual"></textarea>
+			</div>
+		</div>
+
+		<div class="col-md-5">
+			<h4>
+				<span class="glyphicon glyphicon-picture" aria-hidden="true"></span>图片上传
+			</h4>
+			<div class="row">
+				<div class="col-lg-8">
+					<form enctype="multipart/form-data" id="uploadformid">
+						<input type="file" name="file"
+							accept="image/png,image/gif,image/jpeg" id="file">
+					</form>
+				</div>
+				<div class="col-lg-4">
+					<button class="btn btn-success btn-sm" type="button"
+						id="uploadImage" th:attr="userName=${#authentication.name}">插入</button>
+				</div>
+			</div>
+			<h4>
+				<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>博客设置
+			</h4>
+			<div class="row normalFont">
+				<div class="col-lg-4">
+					标签：<input type="text" class="form-control input-sm form-control-tag" 
+					placeholder="请输入" th:value="${model.blog.tags}">   
+				</div>
+				<div class="col-lg-6">
+				    分类：
+					<select id="catalogSelect"
+						class="form-control input-sm form-control-chosen" data-placeholder="请选择">
+						<option th:value="*{id}" th:text="*{name}"
+							th:each="catalog : ${model.catalogs}" th:object="${catalog}"
+							th:selected="${catalog  eq model.blog.catalog }">Java</option>
+					</select>
+				</div>
+			</div>
+			
+		</div>
+
+	</div>
+	<div class="row">
+		<div class="col-lg-7">
+			<textarea class="form-control" placeholder="输入博客内容"
+				id="md" name="content" th:text="${model.blog.content}"
+				onkeyup="compile()"></textarea>
+		</div>
+		<div class="col-lg-5">
+			<div id="result">博客内容显示预览</div>
+		</div>
+	</div>
+	<div class="row">
+	    <p id="essmageError"></p>
+		<div class="col-lg-12">
+			<button class="btn btn-danger col-md-offset-5 btn-lg" id="submitBlog"
+				th:attr="userName=${#authentication.name}">发布博客</button>
+		</div>
+	</div>
+
+</div>
+
+<script type="text/javascript">
+	function compile() {
+		var text = document.getElementById("md").value;
+		var converter = new showdown.Converter();
+		var html = converter.makeHtml(text);
+		document.getElementById("result").innerHTML = html;
+	}
+	// DOM 加载完再执行
+	$(function() {
+	 	$("#uploadImage").click(function() {
+	 		var avatarApi = "/create/"+$(this).attr("userName")+"/blogPhoto";
+		    // 获取 CSRF Token 
+			var csrfToken = $("meta[name='_csrf']").attr("content");
+			var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			// 保存图片更改到数据库
+			$.ajax({ 
+				 url: avatarApi, 
+				 type: 'POST',
+				 cache: false,
+				 data: new FormData($('#uploadformid')[0]),
+				 processData:false,
+				 contentType:false,
+				 beforeSend: function(request) {
+	                 request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+	             },
+				 success: function(data){
+			    	var mdcontent=$("#md").val();
+			    	 $("#md").val(mdcontent + "\n![]("+data.body +") \n");
+		         }
+			}).done(function(res) {
+				$('#file').val('');
+			}).fail(function(res) {});
+	 	})
+	 
+	 	// 发布博客
+	 	$("#submitBlog").click(function() {
+	 
+			// 获取 CSRF Token 
+			var csrfToken = $("meta[name='_csrf']").attr("content");
+			var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			var title=$('#title').val();
+			var summary=$('#summary').val();
+			var content=$('#md').val();
+			var tags=$('.form-control-tag').val();
+			var catalogId=$('#catalogSelect').val();
+			var essmageError=$("#essmageError");
+			if(title==null||title.length<1){
+				essmageError.html("标题长度不能为空");
+				return;
+			}else if(summary==null||summary.length<1){
+				essmageError.html("摘要长度不能为空");
+				return;
+			}else if(content==null||content.length<1){
+				essmageError.html("内容长度不能为空");
+				return;
+			}else if(tags==null||tags.length<1){
+				essmageError.html("标签长度不能为空");
+				return;
+			}else if(catalogId==null||catalogId<1){
+				essmageError.html("分类不能为空");
+				return;
+			}
+			$.ajax({
+			    url: '/create/'+ $(this).attr("userName") + '/blogEdit',
+			    type: 'POST',
+				contentType: "application/json; charset=utf-8",
+			    data:JSON.stringify({"id":$('#Id').val(), 
+			    	"title": title, 
+			    	"summary": summary, 
+			    	"content": content,
+			    	"tags":tags,
+			    	"catalog":{"id":catalogId}}),
+				beforeSend: function(request) {
+				    request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+				},
+				 success: function(data){
+					 if (data.success) {
+						// 成功后，重定向
+						 window.location = data.body;
+					 } else {
+						 alert("error!"+data.message);
+					 } 
+			     },
+			     error : function() {
+			    	 alert.error("error!");
+			     }
+			})
+	 	})
+	 	
+	});
+</script>
+<script type="text/javascript" th:src="@{/js/showdown.min.js}"></script>
+
+</body>
+</html>

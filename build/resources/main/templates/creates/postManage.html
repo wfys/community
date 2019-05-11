@@ -1,0 +1,167 @@
+<style>
+.detail-info span{
+    margin-right:20px;
+ }
+.media{
+    padding-left:10px;
+    padding-top:10px;
+    border-bottom:1px solid #c2c2c2;
+ }
+ .card-link {
+	color: black;
+}
+
+.card-link:hover {
+	color: red;
+	text-decoration: none;
+}
+.tags-link{
+    color:#c2c2c2;
+}
+.tags-link:hover {
+	color: #000000;
+	text-decoration: none;
+}
+</style>
+<!-- 记录需要的url地址 -->
+<p display="none" id="usernameInfo" data-th-attr="info=${username}"></p>
+<ul class="nav nav-tabs selectedOption">
+	<div class="row">
+		<div class="col-md-2 col-xl-2">
+			<select id="orderSelected" name="order" class="form-control"
+				data-placeholder="请选择">
+				<option value="new">按时间排序</option>
+				<option value="hot">按热度排序</option>
+			</select>
+		</div>
+		<div class="col-md-4 col-xl-4">
+			<div class="input-group">
+				<input type="text" class="form-control" id="keyword"
+					placeholder="请输入标题名进行搜索"> <span class="input-group-btn">
+					<a class="btn btn-default" id="searchKeywordBtn"> <span
+						class="glyphicon glyphicon-search" aria-hidden="true"></span>
+				    </a>
+				</span>
+			</div>
+		</div>
+	</div>
+</ul>
+<div id="mainContainerRepleace">
+	<div class="row">
+		<div class="col-md-12 col-xl-12">
+			<div th:each="post : ${model.postList}">
+				<div class="media">
+					<div class="media-body">
+						<h4 class="media-heading"><a th:href="'/post?keyword='+${post.tags}" th:text="${post.tags}" class="tags-link"></a>
+						<a th:href="'/post/detail/'+${post.id}" th:text="${post.title}" class="card-link"></a></h4>
+						<div class="row">
+						   <div class="col-md-9">
+						     <p class="detail-info">
+						      <span><i class="glyphicon glyphicon-time" aria-hidden="true"></i>[[${#dates.format(post.createTime,'yyyy-MM-dd HH:mm:ss')}]]</span> 
+						      <span><i class="glyphicon glyphicon-eye-open" aria-hidden="true"></i>[[${post.readSize}]]</span>
+						      <span><i class="glyphicon glyphicon-comment" aria-hidden="true"></i>[[${post.followSize}]]</span>
+						      <span>悬赏金币：</i>[[${post.spendGold}]]</span>
+						      <span th:if="${post.isSolve}">解决</span>
+						      <span th:if="${post.isSolve} != true">未解决</span>
+					         </p>
+						   </div>
+						   <div class="col-md-3">
+						      <a class="btn btn-success btn-xs post-edit" th:attr="postId=${post.id}">
+								<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
+							    &nbsp;&nbsp;
+							 <a class="btn btn-danger btn-xs post-delete" th:attr="postId=${post.id}">
+							     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+						   </div>
+						</div>
+						
+					</div>
+				</div>
+				<div>
+				</div>
+			</div>
+			<div th:replace="~{creates/postManage_page :: page}">...</div>
+		</div>
+	</div>
+</div>
+<script>
+//DOM 加载完再执行
+$(function() {
+	 
+	var _pageSize=20; // 存储用于搜索
+	// 根据用户名、页面索引、页面大小获取用户列表
+	function getPostsByName(pageIndex, pageSize) {
+		var username=$("#usernameInfo").attr("info");
+		 $.ajax({ 
+			 url: "/create/"+  username  +"/postManage", 
+			 contentType : 'application/json',
+			 data:{
+				 "async":true, 
+				 "pageIndex":pageIndex,
+				 "pageSize":pageSize,
+				 "order":$("#orderSelected").val(),
+				 "keyword":$("#keyword").val()
+			 },
+			 success: function(data){
+				 $("#mainContainerRepleace").html(data);
+		     },
+		     error : function() {
+		    	 alert("error!");
+		     }
+		 });
+	}
+   
+	// 关键字搜索
+	$("#searchKeywordBtn").click(function() {
+		getPostsByName(0, _pageSize);
+	});
+	
+	// 最新\最热切换事件
+	$("#orderSelected").change(function() {
+		getPostsByName(0, _pageSize);
+	});
+	
+	// 编辑帖子
+	$(".post-edit").click(function() {
+		var username=$("#usernameInfo").attr("info");
+		var url="/create/"+username+"/postEdit/"+$(this).attr("postId");
+		$.ajax({ 
+			 url: url, 
+			 success: function(data){
+				 $("#rightContainer").html(data);
+		      },
+		      error : function() {
+		         alert("error");
+		     }
+		 });
+	});
+	
+	// 删除帖子
+	$(".post-delete").click(function() {
+		// 获取 CSRF Token 
+		var csrfToken = $("meta[name='_csrf']").attr("content");
+		var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+		if (confirm("确认删除？")==false) return;
+		var username=$("#usernameInfo").attr("info");
+		var url="/create/"+username+"/postDelete/"+$(this).attr("postId");
+		$.ajax({ 
+			 url: url, 
+			 type: 'DELETE', 
+			 beforeSend: function(request) {
+                 request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+             },
+			 success: function(data){
+				 if (data.success) {
+					 // 从新刷新主界面
+					 getPostsByName(0, _pageSize);
+				 } else {
+					 alert(data.message);
+				 }
+		     },
+		     error : function() {
+		    	 alert("error");
+		     }
+		 });
+	});
+			
+});
+</script>

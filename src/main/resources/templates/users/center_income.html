@@ -1,0 +1,31 @@
+<div id="mainContainerRepleace">
+	<div class="row">
+	   <div class="col-md-12 col-xl-12">
+		<table class="table table-striped table-bordered">
+			<thead>
+				<tr>
+					<th data-field="id">ID</th>
+					<th data-field="user">收入者</th>
+					<th data-field="username">贡献者</th>
+					<th data-field="gold">金币</th>
+					<th data-field="websiteInfo">内容</th>
+					<th data-field="creatTime">收入时间</th>
+				</tr>
+			</thead>
+			<tbody>
+
+				<tr th:each="spend : ${model.spendList}">
+					<td th:text="${spend.id}"></td>
+					<td><sapn th:text="${spend.user.username}"></sapn>（我）</td>
+					<td th:text="${spend.consumer.username}"></td>
+					<td th:text="${spend.gold}"></td>
+					<td><a th:href="${spend.website}"><span th:text="${spend.websiteInfo}"></span></a></td>
+					<td th:text="${spend.createTime}"></td>
+				</tr>
+			</tbody>
+
+		</table>
+		<div th:replace="~{users/recharge_page :: page}">...</div>
+     </div>
+	</div>
+</div>

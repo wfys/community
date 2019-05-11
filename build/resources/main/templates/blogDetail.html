@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head th:replace="~{fragments/header :: headInfo}">
+
+</head>
+<body>
+	<div th:replace="~{fragments/header :: header}"></div>
+	<style>
+.card-text span {
+	margin-right: 10px;
+	margin-left: 10px;
+}
+
+.media {
+	padding-left: 10px;
+	padding-top: 10px;
+	border-bottom: 1px solid #c2c2c2;
+}
+
+.card-link img {
+	width: 40px;
+	height: 40px;
+	border: 1px solid black;
+}
+
+.card-link {
+	color: black;
+}
+
+.card-link:hover {
+	color: red;
+	text-decoration: none;
+}
+
+.card-link .badge {
+	font-size: 18px;
+}
+
+.card-link .badge:hover {
+	color: red;
+	background-color: #FFB800;
+}
+
+.text-right {
+	margin-right: 15px;
+}
+#commentContent {
+	background-color: #efefef;
+	margin-bottom: 20px;
+	resize: none;
+	font-size: 18px;
+	color: #000000;
+}
+
+#submitVote, #submitSpend {
+	cursor: pointer;
+	font-size: 30px;
+	border: 1px solid black;
+	padding: 10px;
+	border-radius: 29px;
+}
+.submitCommentVote{
+	cursor: pointer;
+	font-size: 18px;
+	color:red;
+}
+#cancelVote {
+	cursor: pointer;
+	font-size: 30px;
+	color: red;
+	border: 1px solid black;
+	padding: 10px;
+	border-radius: 29px;
+}
+#errorGold,.goldInfo{
+    color:red;
+}
+</style>
+	<!-- Page Content -->
+	<div class="container content-container">
+		<div class="row">
+		    <span display="none" id="principal" data-th-attr="principal=${principal}" ></span>
+			<div class="col-md-8">
+				<h2 class="card-title">
+					<a th:href="'/u/' + ${user.username}" class="card-link"> <img
+						class="img-circle"
+						th:src="${user.getAvater()} == null ? '/favicon.ico' : ${user.getAvater()}">
+					</a> <a class="card-link" th:href="'/blog/detail/' + ${blog.id}"
+						th:title="${user.username}" th:text="${blog.title}"> </a>
+				</h2>
+				<h4 class="card-text">
+					<a th:href="'/u/' + ${user.username}" class="card-link"
+						th:text="${user.name}"></a> 发表于
+					[[${#dates.format(blog.createTime, 'yyyy-MM-dd HH:mm:ss')}]] <span><i
+						class="glyphicon glyphicon-eye-open" aria-hidden="true">[[${blog.readSize}]]</i></span>
+					<span><i class="glyphicon glyphicon-comment"
+						aria-hidden="true">[[${blog.commentSize}]]</i></span> <span><i
+						class="glyphicon glyphicon-thumbs-up" aria-hidden="true">[[${blog.likeSize}]]</i></span>
+					<span><i class="glyphicon glyphicon-usd" aria-hidden="true">[[${blog.spendSize}]]</i></span>
+				</h4>
+				<hr>
+				<article class="post-content" th:utext="${blog.htmlContent}"></article>
+				<hr>
+				<div class="card-block">
+					<h4>
+						分类：<span th:text="${blog.catalog.name}" class="delete-comment"> Spring Data </span>
+					</h4>
+					<h4>
+						标签： <a th:each="tag : ${#strings.arraySplit(blog.tags , ',')}"
+							th:href="'/blog?keyword='+ ${tag}" class="card-link"> <span
+							class="badge" th:text="${tag}">Web Design</span></a>
+					</h4>
+				</div>
+				<div class="card-block">
+					<h4>评论：</h4>
+					<div class="row">
+						<div class="col-lg-12">
+							<textarea class="form-control" placeholder="看帖需留言~"
+								id="commentContent" maxlength="500" rows="4"></textarea>
+						</div>
+						<div class="text-right">
+							<button class="btn btn-danger" id="submitComment"
+								th:attr="blogId=${blog.id}">发表评论</button>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-3 col-md-offset-3">
+							<span th:if="${currentVote} == null" id="submitVote"><i
+								class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></i></span> <span
+								th:if="${currentVote}" th:attr="voteId=${currentVote.id}"
+								id="cancelVote"><i class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></i></span>
+						</div>
+						<div class="col-lg-3">
+							<span id="submitSpend" data-toggle="modal"
+								data-target="#flipFlop" role="button"
+								th:attr="blogId=${blog.id}">赏</span>
+						</div>
+					</div>
+				</div>
+				<div class="card-block" id="mainContainer">
+					<div id="mainContainerRepleace">
+					  <div th:each="comment,commentStat : ${model.comments}" th:object="${comment}">
+						<div class="media">
+							<div class="media-left">
+								<a th:href="'/u/'+ *{user.username}" class="card-link"> <img
+									class="media-object img-circle"
+									th:src="*{user.getAvater()} == null ? '/favicon.ico' : *{user.getAvater()}">
+								</a>
+							</div>
+							<div class="media-body">
+							    <div class="row">
+							         <div class="col-md-10">
+							             <h4 class="media-heading"><span th:text="*{user.name}" class="goldInfo"></span></h4>
+							         </div>
+							         <div class="col-md-2">
+							             <span>[[${commentStat.index} + 1]]楼</span>
+							         </div>
+							    </div>
+								<div th:text="*{content}" class="normalFont"></div>
+								<div class="row">
+								    <div class="col-md-10">
+								    <p class="detail-info">
+						               <span><i class="glyphicon glyphicon-time"
+										aria-hidden="true"></i>[[${#dates.format(comment.createTime,'yyyy-MM-dd HH:mm:ss')}]]</span>
+										<span th:onclick="'submitCommentVote('+*{id}+')'" class="submitCommentVote"><i
+								               class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></i></span>
+										<span>[[${comment.likeSize}]]</span>
+					                </p>
+									</div>
+									<div class="col-md-2">
+									  <button  th:onclick="'deleteCommnet('+*{id}+')'" th:if="${commentOwner} eq *{user.username} or ${commentOwner} eq ${blogOWner}"
+										th:attr="commentid=*{id}" class="btn btn-danger btn-xs" > <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+									  </button>
+									</div>	
+								</div>
+							</div>
+						</div>
+					</div>
+					</div>
+				</div>
+			</div>
+			<!-- 右侧栏目 -->
+			<div class="col-md-4">
+				<div id="mainHotContainer">
+				</div>
+				<div id="mainSpend">
+				<div class="panel panel-default" id="mainSpendsRepleace">
+					<div class="panel-heading normalFont">打赏榜单</div>
+					<ul class="list-group" th:each="spend : ${model.spends}" th:object="${spend}">
+						<li class="list-group-item normalFont">
+						<div class="row">
+						     <div class="col-md-2">
+						            <a th:href="'/u/'+ *{consumer.username}" class="card-link" th:title="*{consumer.username}"> <img class="media-object img-circle"
+									th:src="*{consumer.getAvater()} == null ? '/favicon.ico' : *{consumer.getAvater()}">
+									</a>
+						     
+						     </div>
+						     <div class="col-md-10">
+						         <span th:text="*{consumer.name}"></span>在[[${#dates.format(spend.createTime,'yyyy-MM-dd HH:mm:ss')}]]<span>打赏了</span>
+						         <span th:text="*{gold}" class="goldInfo"></span>金币
+						     </div>
+						</div>
+					</ul>
+				</div>
+				</div>
+			</div>
+		</div>
+		<!-- /.row -->
+	</div>
+	<div th:replace="~{fragments/footer :: footer}">...</div>
+	<!-- The modal -->
+	<div class="modal fade bs-example-modal-sm" id="flipFlop" tabindex="-1" role="dialog"
+		aria-labelledby="modalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title" id="modalLabel">输入打赏值</h4>
+				</div>
+				<div class="modal-body" th:if="${principal}">
+					<div>
+						<div>
+							你的金币余额为：<span th:text="${principal.gold}" id="goldAll" class="goldInfo"></span>
+						</div>
+						<div class="form-group ">
+								<label for="gold" class="col-form-label">打赏数量</label> <input
+									type="text" class="form-control" id="gold" name="gold"
+									maxlength="30" placeholder="请输入打賞数值" data-th-attr="username=${principal.username}">
+						</div>
+						<div id="errorGold"></div>
+					</div>
+				</div>
+				<div class="modal-body" th:if="${principal} == null">
+					<div>
+						<h4>请先登录</h4>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-primary" data-dismiss="modal"
+						id="submitEditGold">确认</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">取消</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- JavaScript -->
+	<script>
+		//DOM 加载完再执行
+		$(function() {
+			//$.catalog("#catalog", ".post-content");
+			var blogId = $("#submitComment").attr("blogId");
+			var principal=$("#principal").attr("principal");
+			// 获取评论列表
+			function getCommnet(blogId) {
+				// 获取 CSRF Token 
+				var csrfToken = $("meta[name='_csrf']").attr("content");
+				var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+				$.ajax({
+					url : '/comments',
+					type : 'GET',
+					data : {
+						"blogId" : blogId
+					},
+					beforeSend : function(request) {
+						request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+					},
+					success : function(data) {
+						$("#mainContainer").html(data);
+					},
+					error : function() {
+						alert("error!");
+					}
+				});
+			}
+
+			// 提交评论
+			$("#submitComment").click(function() {
+					// 获取 CSRF Token 
+					var csrfToken = $("meta[name='_csrf']").attr("content");
+					var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+					if($('#commentContent').val().length<=0){
+						alert("请输入评论");
+						return;
+					}
+					if(principal==null){
+						alert("请先登录再评论");
+						return;
+					}
+					$.ajax({
+							 url : '/comments',
+							 type: 'POST',
+							 data : {
+								 "blogId" : blogId,
+									"commentContent" : $('#commentContent').val()
+								},
+							 beforeSend: function(request) {
+					             request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token
+					         },
+							success : function(data) {
+							    if (data.success) {
+									// 清空评论框
+									$('#commentContent').val('');
+									// 获取评论列表
+									getCommnet(blogId);
+							    } else {
+									alert(data.message);
+							    }
+							},
+							error : function() {
+								alert("error!");
+							}
+						});
+			});
+			
+			//删除评论
+			deleteCommnet= function(commentid) {
+					// 获取 CSRF Token 
+					var csrfToken = $("meta[name='_csrf']").attr("content");
+					var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+					if (confirm("确认删除？") == false) return;
+					$.ajax({
+							url : '/comments/'+ commentid+ '?blogId=' + blogId,
+							type : 'DELETE',
+							beforeSend : function(request) {
+							request.setRequestHeader(csrfHeader,
+										csrfToken); // 添加  CSRF Token 
+							},
+							success : function(data) {
+							  if (data.success) {
+							    // 获取评论列表
+							    getCommnet(blogId);
+							  } else {
+								alert(data.message);
+							  }
+							},
+							error : function() {
+								alert("error!");
+							}
+						});
+			}
+
+			// 初始化 博客评论
+			getCommnet(blogId);
+			// 提交点赞
+			$("#submitVote").click(function() {
+				if(principal==null){
+					alert("请先登录再点赞");
+					return;
+				}
+				// 获取 CSRF Token 
+				var csrfToken = $("meta[name='_csrf']").attr("content");
+				var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+                $.ajax({
+						url : '/votes',
+				        type : 'POST',
+						data : {
+								"blogId" : blogId
+						},
+						beforeSend : function(request) {
+								request.setRequestHeader(csrfHeader,csrfToken); // 添加  CSRF Token 
+						},
+						success : function(data) {
+							if (data.success) {
+									alert(data.message);
+									// 成功后，重定向
+									location.reload();
+							} else {
+									alert(data.message);
+							}
+						},
+						error : function() {
+							alert("error!");
+						}
+					});
+			});
+
+			// 取消点赞
+			$("#cancelVote").click(function() {
+				// 获取 CSRF Token 
+				var csrfToken = $("meta[name='_csrf']").attr("content");
+				var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				$.ajax({
+				    url : '/votes/' + $(this).attr('voteId')+ '?blogId=' + blogId,
+					type : 'DELETE',
+					beforeSend : function(request) {
+							request.setRequestHeader(csrfHeader,csrfToken); // 添加  CSRF Token 
+					},
+					success : function(data) {
+							if (data.success) {
+							   alert(data.message);
+							   // 成功后，重定向
+							   location.reload();
+							} else {
+								alert(data.message);
+							}
+					},
+					error : function() {
+							alert("error!");
+					}
+				});
+			});
+			
+			// 提交评论点赞
+			submitCommentVote = function(commentId) {
+				// 获取 CSRF Token 
+				var csrfToken = $("meta[name='_csrf']").attr("content");
+				var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				if(principal==null){
+					alert("请先登录再点赞");
+					return;
+				}
+                $.ajax({
+						url : '/votes/comment',
+				        type : 'POST',
+						data : {
+								"commentId" : commentId
+						},
+						beforeSend : function(request) {
+								request.setRequestHeader(csrfHeader,csrfToken); // 添加  CSRF Token 
+						},
+						success : function(data) {
+							if (data.success) {
+									alert(data.message);
+									// 成功后，刷新
+									getCommnet(blogId);
+							} else {
+									alert(data.message);
+							}
+						},
+						error : function() {
+							alert("error!");
+						}
+					});
+			};
+
+			// 取消评论点赞
+			cancelCommentVote = function(voteId,commentId) {
+				// 获取 CSRF Token 
+				var csrfToken = $("meta[name='_csrf']").attr("content");
+				var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				$.ajax({
+				    url : '/votes/comment/' + voteId+ '?commentId=' + commentId,
+					type : 'DELETE',
+					beforeSend : function(request) {
+							request.setRequestHeader(csrfHeader,csrfToken); // 添加  CSRF Token 
+					},
+					success : function(data) {
+							if (data.success) {
+							   alert(data.message);
+							   // 成功后，刷新
+							   getCommnet(blogId);
+							} else {
+								alert(data.message);
+							}
+					},
+					error : function() {
+							alert("error!");
+					}
+				});
+			};
+			
+			// 获取打赏列表
+			function getSpend(blogId) {
+				// 获取 CSRF Token 
+				var csrfToken = $("meta[name='_csrf']").attr("content");
+				var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				$.ajax({
+					url : '/spends',
+					type : 'GET',
+					data : {
+						"blogId" : blogId
+					},
+					beforeSend : function(request) {
+						request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+					},
+					success : function(data) {
+						$("#mainSpend").html(data);
+					},
+					error : function() {
+						alert("error!");
+					}
+				});
+			}
+			
+			getSpend(blogId);
+			
+			// 提交打赏
+			$("#submitEditGold").click(function(ev) {
+				// 获取 CSRF Token 
+				var csrfToken = $("meta[name='_csrf']").attr("content");
+				var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+				var gold=parseInt($("#gold").val()) || 0;
+				var goldAll=$("#goldAll").html();
+				if(gold<=0 || gold>goldAll){
+					$("#errorGold").html("赏币不能为空或大于你的总资产");
+					var oEvent = ev || event;
+					oEvent.preventDefault(); 
+					return false;
+				}
+				var usernameUrl=$("#gold").attr("username");
+				$.ajax({ 
+					 url: '/spends',
+					 type: 'POST',
+					 data : {
+							"blogId" : blogId,
+							"gold" : gold
+						},
+					 beforeSend: function(request) {
+			             request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token
+			         },
+					 success: function(data){
+						 if (data.success) {
+							 alert(data.message);
+							 getSpend(blogId)
+						 } else {
+							 alert(data.message);
+						 }
+				     },
+				     error : function() {
+				    	 alert("error!");
+				     }
+				 });
+			});
+			
+			// 获取最热博客列表
+			function getHotBlog() {
+				// 获取 CSRF Token 
+				var csrfToken = $("meta[name='_csrf']").attr("content");
+				var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+				$.ajax({
+					url : '/blog/rank',
+					type : 'GET',
+					data : {
+						"order" : "hot",
+						"pageSize": 5
+					},
+					beforeSend : function(request) {
+						request.setRequestHeader(csrfHeader, csrfToken); // 添加  CSRF Token 
+					},
+					success : function(data) {
+						$("#mainHotContainer").html(data);
+					},
+					error : function() {
+						alert("error!");
+					}
+				});
+			}
+			getHotBlog();
+	});
+	</script>
+</body>
+</html>
